@@ -1,4 +1,4 @@
-package yu.spring.gyeongsanlog.config;
+package yu.spring.gyeongsanlog.common.config;
 
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.security.SecurityRequirement;

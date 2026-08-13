@@ -1,4 +1,4 @@
-package yu.spring.gyeongsanlog.config;
+package yu.spring.gyeongsanlog.common.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
