@@ -1,4 +1,4 @@
-package yu.spring.gyeongsanlog.common;
+package yu.spring.gyeongsanlog.common.domain;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;

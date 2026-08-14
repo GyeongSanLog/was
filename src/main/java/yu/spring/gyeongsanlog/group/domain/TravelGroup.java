@@ -13,7 +13,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import yu.spring.gyeongsanlog.common.BaseTimeEntity;
+import yu.spring.gyeongsanlog.common.domain.BaseTimeEntity;
 import yu.spring.gyeongsanlog.user.domain.User;
 
 import java.time.LocalDateTime;
