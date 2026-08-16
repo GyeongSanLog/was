@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
+import yu.spring.gyeongsanlog.user.dto.LoginRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
 import yu.spring.gyeongsanlog.user.service.AuthService;
@@ -41,5 +42,19 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<TokenResponse> signUp(@Valid @RequestBody SignUpRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    }
+
+    @Operation(summary = "로그인", description = "이메일/비밀번호로 로그인 후 토큰을 반환한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공 및 토큰 발급",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "401", description = "비밀번호 불일치",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

@@ -10,6 +10,7 @@ import yu.spring.gyeongsanlog.common.jwt.JwtTokenProvider;
 import yu.spring.gyeongsanlog.common.jwt.RefreshTokenRepository;
 import yu.spring.gyeongsanlog.user.domain.Provider;
 import yu.spring.gyeongsanlog.user.domain.User;
+import yu.spring.gyeongsanlog.user.dto.LoginRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
@@ -42,6 +43,20 @@ public class AuthService {
         return issueTokens(user);
     }
 
+    // 시스템 로그인
+    @Transactional(readOnly = true)
+    public TokenResponse login(LoginRequest request) {
+        User user = userRepository.findByEmailAndProvider(request.getEmail(), Provider.LOCAL)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new BusinessException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        return issueTokens(user);
+    }
+
+    //토큰 발급
     private TokenResponse issueTokens(User user) {
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
         String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
