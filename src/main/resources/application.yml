@@ -35,3 +35,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+jwt:
+  access-secret: ${ACCESS_SECRET}
+  access-expiration: ${ACCESS_EXPIRATION:1800000}
+  refresh-secret: ${REFRESH_SECRET}
+  refresh-expiration: ${REFRESH_EXPIRATION:1209600000}

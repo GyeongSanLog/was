@@ -36,6 +36,9 @@ public class User extends BaseTimeEntity {
     private String profileImageUrl;
 
     @Enumerated(EnumType.STRING)
+    private Role role = Role.USER;
+
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Provider provider;
 
