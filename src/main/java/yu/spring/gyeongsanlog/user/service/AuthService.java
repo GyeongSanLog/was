@@ -10,7 +10,7 @@ import yu.spring.gyeongsanlog.common.jwt.JwtTokenProvider;
 import yu.spring.gyeongsanlog.common.jwt.RefreshTokenRepository;
 import yu.spring.gyeongsanlog.user.domain.Provider;
 import yu.spring.gyeongsanlog.user.domain.User;
-import yu.spring.gyeongsanlog.user.dto.LoginRequest;
+import yu.spring.gyeongsanlog.user.dto.MemberLoginRequest;
 import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
@@ -46,7 +46,7 @@ public class AuthService {
 
     // 시스템 로그인
     @Transactional(readOnly = true)
-    public TokenResponse login(LoginRequest request) {
+    public TokenResponse login(MemberLoginRequest request) {
         User user = userRepository.findByEmailAndProvider(request.getEmail(), Provider.LOCAL)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 

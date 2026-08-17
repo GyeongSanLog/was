@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
-import yu.spring.gyeongsanlog.user.dto.LoginRequest;
+import yu.spring.gyeongsanlog.user.dto.MemberLoginRequest;
 import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
@@ -57,7 +57,7 @@ public class AuthController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody MemberLoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
     }
 
