@@ -82,4 +82,14 @@ public class AuthController {
     public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
         return ResponseEntity.ok(authService.isNicknameAvailable(nickname));
     }
+
+    @Operation(summary = "로그아웃", description = "refresh token을 만료시켜 해당 세션을 로그아웃한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "로그아웃 성공")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
+        authService.logout(request);
+        return ResponseEntity.noContent().build();
+    }
 }

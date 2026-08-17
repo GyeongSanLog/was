@@ -77,6 +77,12 @@ public class AuthService {
         return issueTokens(user);
     }
 
+    // 로그아웃 (해당 refresh token 세션만 만료)
+    @Transactional
+    public void logout(RefreshRequest request) {
+        refreshTokenRepository.deleteByToken(request.getRefreshToken());
+    }
+
     // 닉네임 중복 확인
     @Transactional(readOnly = true)
     public boolean isNicknameAvailable(String nickname) {
