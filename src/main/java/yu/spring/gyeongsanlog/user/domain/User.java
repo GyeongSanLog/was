@@ -54,4 +54,8 @@ public class User extends BaseTimeEntity {
         this.provider = provider;
         this.providerId = providerId;
     }
+
+    public void changePassword(String encodedPassword) {
+        this.password = encodedPassword;
+    }
 }
