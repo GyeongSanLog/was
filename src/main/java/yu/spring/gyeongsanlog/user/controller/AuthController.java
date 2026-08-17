@@ -11,9 +11,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.user.dto.LoginRequest;
@@ -69,5 +71,15 @@ public class AuthController {
     @PostMapping("/reissue")
     public ResponseEntity<TokenResponse> reissue(@Valid @RequestBody RefreshRequest request) {
         return ResponseEntity.ok(authService.reissue(request));
+    }
+
+    @Operation(summary = "닉네임 중복 확인", description = "닉네임 사용 가능 여부를 반환한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "확인 성공",
+                    content = @Content(schema = @Schema(implementation = Boolean.class)))
+    })
+    @GetMapping("/nickname/check")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        return ResponseEntity.ok(authService.isNicknameAvailable(nickname));
     }
 }

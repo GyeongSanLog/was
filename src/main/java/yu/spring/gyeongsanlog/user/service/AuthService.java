@@ -77,6 +77,12 @@ public class AuthService {
         return issueTokens(user);
     }
 
+    // 닉네임 중복 확인
+    @Transactional(readOnly = true)
+    public boolean isNicknameAvailable(String nickname) {
+        return !userRepository.existsByNickname(nickname);
+    }
+
     //토큰 발급
     private TokenResponse issueTokens(User user) {
         String accessToken = jwtTokenProvider.createAccessToken(user.getId(), user.getRole().name());
