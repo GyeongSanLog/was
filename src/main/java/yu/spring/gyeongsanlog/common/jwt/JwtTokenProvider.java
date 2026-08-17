@@ -14,6 +14,7 @@ import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 @Component
 public class JwtTokenProvider {
@@ -39,6 +40,7 @@ public class JwtTokenProvider {
     public String createAccessToken(Long userId, String role) {
         Date now = new Date();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString()) // jwt 중복 방지
                 .subject(String.valueOf(userId))
                 .claim("role", role)
                 .issuedAt(now)
@@ -50,6 +52,7 @@ public class JwtTokenProvider {
     public String createRefreshToken(Long userId) {
         Date now = new Date();
         return Jwts.builder()
+                .id(UUID.randomUUID().toString()) // jwt 중복 방지
                 .subject(String.valueOf(userId))
                 .issuedAt(now)
                 .expiration(new Date(now.getTime() + refreshExpiration))
