@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.user.dto.LoginRequest;
+import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
 import yu.spring.gyeongsanlog.user.service.AuthService;
@@ -56,5 +57,17 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @Operation(summary = "토큰 재발급", description = "refresh token으로 access/refresh 토큰을 재발급한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "재발급 성공",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "401", description = "유효하지 않거나 만료된 refresh token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponse> reissue(@Valid @RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(authService.reissue(request));
     }
 }

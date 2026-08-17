@@ -26,6 +26,7 @@ public class SecurityConfig {
     private static final String[] PERMIT_ALL_URLS = {
             "/api/member/register",
             "/api/member/login",
+            "/api/member/reissue",
             "/swagger-ui/**",
             "/v3/api-docs/**"
     };

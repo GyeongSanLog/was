@@ -11,6 +11,7 @@ import yu.spring.gyeongsanlog.common.jwt.RefreshTokenRepository;
 import yu.spring.gyeongsanlog.user.domain.Provider;
 import yu.spring.gyeongsanlog.user.domain.User;
 import yu.spring.gyeongsanlog.user.dto.LoginRequest;
+import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
@@ -52,6 +53,26 @@ public class AuthService {
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_PASSWORD);
         }
+
+        return issueTokens(user);
+    }
+
+    // 토큰 재발급
+    @Transactional
+    public TokenResponse reissue(RefreshRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
+            throw new BusinessException(ErrorCode.INVALID_TOKEN);
+        }
+
+        Long userId = refreshTokenRepository.findUserIdByToken(refreshToken)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_TOKEN));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        refreshTokenRepository.deleteByToken(refreshToken);
 
         return issueTokens(user);
     }
