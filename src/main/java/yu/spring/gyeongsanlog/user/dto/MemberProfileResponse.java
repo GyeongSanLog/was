@@ -10,6 +10,7 @@ public class MemberProfileResponse {
     private Long id;
     private String email;
     private String nickname;
+    private String name;
     private String profileImageUrl;
     private String provider;
 
@@ -18,6 +19,7 @@ public class MemberProfileResponse {
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
+                .name(user.getName())
                 .profileImageUrl(user.getProfileImageUrl())
                 .provider(user.getProvider().name())
                 .build();

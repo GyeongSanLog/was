@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,17 @@ import yu.spring.gyeongsanlog.user.service.MemberService;
 public class MemberController {
 
     private final MemberService memberService;
+
+    @Operation(summary = "회원 정보 조회", description = "로그인한 본인의 회원 정보를 조회한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = MemberProfileResponse.class)))
+    })
+    @GetMapping
+    public ResponseEntity<MemberProfileResponse> getProfile(Authentication authentication) {
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(memberService.getProfile(userId));
+    }
 
     @Operation(summary = "비밀번호 변경", description = "현재 비밀번호를 확인 후 새 비밀번호로 변경한다.")
     @ApiResponses(value = {

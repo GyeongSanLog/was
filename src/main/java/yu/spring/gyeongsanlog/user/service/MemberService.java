@@ -23,6 +23,15 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
     private final S3Uploader s3Uploader;
 
+    // 회원 정보 조회
+    @Transactional(readOnly = true)
+    public MemberProfileResponse getProfile(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        return MemberProfileResponse.from(user);
+    }
+
     // 비밀번호 변경
     @Transactional
     public void changePassword(Long userId, ChangePasswordRequest request) {
@@ -47,6 +56,7 @@ public class MemberService {
             throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
         }
         user.changeNickname(request.getNickname());
+        user.changeName(request.getName());
 
         if (request.isResetProfileImage()) {
             user.changeProfileImageUrl(null);
