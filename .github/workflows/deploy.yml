@@ -66,6 +66,8 @@ jobs:
             echo "AWS_ACCESS_KEY=${{ secrets.AWS_ACCESS_KEY }}" >> .env
             echo "AWS_SECRET_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
             echo "S3_BUCKET_NAME=${{ secrets.S3_BUCKET_NAME }}" >> .env
+            echo "ACCESS_SECRET=${{ secrets.ACCESS_SECRET }}" >> .env
+            echo "REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}" >> .env
             docker compose pull
             docker compose up -d
             docker image prune -f

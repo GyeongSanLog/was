@@ -29,6 +29,9 @@ public class S3Uploader {
     @Value("${spring.cloud.aws.s3.bucket}")
     private String bucket;
 
+    @Value("${spring.cloud.aws.region.static}")
+    private String region;
+
     @Value("${spring.servlet.multipart.max-file-size}")
     private DataSize maxVideoSize;
 
@@ -90,7 +93,7 @@ public class S3Uploader {
     // 프로필 사진 등 항상 노출되는 퍼블릭 URL
     public String getPublicUrl(String key) {
         validateKey(key);
-        return String.format("https://%s.s3.ap-northeast-2.amazonaws.com/%s", bucket, key);
+        return String.format("https://%s.s3.%s.amazonaws.com/%s", bucket, region, key);
     }
 
     public void deleteFile(String key) {

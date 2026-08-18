@@ -18,6 +18,7 @@ public class DummyDataInitializer implements CommandLineRunner {
     private static final String DUMMY_EMAIL = "test@test.com";
     private static final String DUMMY_PASSWORD = "test1234";
     private static final String DUMMY_NICKNAME = "test";
+    private static final String DUMMY_NAME = "테스트";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -33,6 +34,7 @@ public class DummyDataInitializer implements CommandLineRunner {
         User user = User.builder()
                 .email(DUMMY_EMAIL)
                 .nickname(DUMMY_NICKNAME)
+                .name(DUMMY_NAME)
                 .password(passwordEncoder.encode(DUMMY_PASSWORD))
                 .provider(Provider.LOCAL)
                 .build();
