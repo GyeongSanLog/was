@@ -4,10 +4,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
+import yu.spring.gyeongsanlog.common.dto.FileDetailDto;
+import yu.spring.gyeongsanlog.common.util.S3Uploader;
 import yu.spring.gyeongsanlog.user.domain.User;
 import yu.spring.gyeongsanlog.user.dto.ChangePasswordRequest;
+import yu.spring.gyeongsanlog.user.dto.MemberProfileResponse;
+import yu.spring.gyeongsanlog.user.dto.UpdateProfileRequest;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
 
 @Service
@@ -16,6 +21,7 @@ public class MemberService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final S3Uploader s3Uploader;
 
     // 비밀번호 변경
     @Transactional
@@ -28,5 +34,28 @@ public class MemberService {
         }
 
         user.changePassword(passwordEncoder.encode(request.getNewPassword()));
+    }
+
+    // 회원 정보 수정
+    @Transactional
+    public MemberProfileResponse updateProfile(Long userId, UpdateProfileRequest request, MultipartFile profileImage) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        if (!user.getNickname().equals(request.getNickname())
+                && userRepository.existsByNickname(request.getNickname())) {
+            throw new BusinessException(ErrorCode.DUPLICATE_NICKNAME);
+        }
+        user.changeNickname(request.getNickname());
+
+        if (request.isResetProfileImage()) {
+            user.changeProfileImageUrl(null);
+        } else if (profileImage != null && !profileImage.isEmpty()) {
+            FileDetailDto meta = s3Uploader.makeMetaData(profileImage, "PROFILE_IMAGE");
+            s3Uploader.uploadFile(meta.getKey(), profileImage);
+            user.changeProfileImageUrl(s3Uploader.getPublicUrl(meta.getKey()));
+        }
+
+        return MemberProfileResponse.from(user);
     }
 }

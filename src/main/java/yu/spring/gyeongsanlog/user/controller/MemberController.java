@@ -13,9 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.user.dto.ChangePasswordRequest;
+import yu.spring.gyeongsanlog.user.dto.MemberProfileResponse;
+import yu.spring.gyeongsanlog.user.dto.UpdateProfileRequest;
 import yu.spring.gyeongsanlog.user.service.MemberService;
 
 @Tag(name = "member", description = "마이페이지 관련 API")
@@ -37,5 +41,22 @@ public class MemberController {
         Long userId = Long.valueOf(authentication.getName());
         memberService.changePassword(userId, request);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "회원 정보 수정", description = "닉네임과 프로필 사진을 수정한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "수정 성공",
+                    content = @Content(schema = @Schema(implementation = MemberProfileResponse.class))),
+            @ApiResponse(responseCode = "409", description = "이미 사용중인 닉네임",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PatchMapping(value = "", consumes = "multipart/form-data")
+    public ResponseEntity<MemberProfileResponse> updateProfile(
+            Authentication authentication,
+            @Valid @RequestPart("request") UpdateProfileRequest request,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage
+    ) {
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(memberService.updateProfile(userId, request, profileImage));
     }
 }
