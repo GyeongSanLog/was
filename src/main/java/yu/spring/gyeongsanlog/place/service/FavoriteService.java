@@ -1,11 +1,16 @@
 package yu.spring.gyeongsanlog.place.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import yu.spring.gyeongsanlog.common.dto.SliceResponse;
 import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import yu.spring.gyeongsanlog.place.domain.Favorite;
+import yu.spring.gyeongsanlog.place.domain.Place;
+import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
 import yu.spring.gyeongsanlog.place.repository.FavoriteRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
@@ -37,5 +42,11 @@ public class FavoriteService {
 
         favoriteRepository.save(favorite);
         return true;
+    }
+
+    @Transactional(readOnly = true)
+    public SliceResponse<PlaceListResponse> getFavorites(Long userId, Pageable pageable) {
+        Slice<Place> places = favoriteRepository.findFavoritePlacesByUserId(userId, pageable);
+        return SliceResponse.from(places.map(PlaceListResponse::from));
     }
 }

@@ -70,6 +70,21 @@ public class PlaceController {
         return ResponseEntity.ok(placeService.getRandomPlace());
     }
 
+    @Operation(summary = "찜 목록 조회", description = "최근 찜한 순으로 조회한다(무한스크롤). 인증 필요.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/favorites")
+    public ResponseEntity<SliceResponse<PlaceListResponse>> getFavorites(
+            Authentication authentication,
+            @ParameterObject @PageableDefault(size = 20) Pageable pageable) {
+
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(favoriteService.getFavorites(userId, pageable));
+    }
+
     @Operation(summary = "관광지 상세 조회", description = "관광지 한 곳의 상세 정보를 조회한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공",
