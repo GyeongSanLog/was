@@ -23,7 +23,7 @@ public class PlaceDetailResponse {
     private String address;
 
     @Schema(description = "관광지 유형", example = "관광지")
-    private String contentType;
+    private String category;
 
     @Schema(description = "대표사진", example = "https://tong.visitkorea.or.kr/...")
     private String imageUrl;
@@ -60,7 +60,7 @@ public class PlaceDetailResponse {
                 .id(place.getId())
                 .name(place.getName())
                 .address(toAddress(place))
-                .contentType(place.getContentType().getLabel())
+                .category(place.getContentType().getLabel())
                 .imageUrl(place.getImageUrl())
                 .overview(place.getOverview())
                 .tel(place.getTel())
