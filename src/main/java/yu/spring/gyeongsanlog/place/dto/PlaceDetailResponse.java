@@ -23,16 +23,16 @@ public class PlaceDetailResponse {
     private String address;
 
     @Schema(description = "관광지 유형", example = "관광지")
-    private String contentType;
+    private String category;
 
     @Schema(description = "대표사진", example = "https://tong.visitkorea.or.kr/...")
     private String imageUrl;
 
-    @Schema(description = "개요")
-    private String overview;
+    @Schema(description = "장소 설명")
+    private String content;
 
     @Schema(description = "전화번호", example = "053-810-5364")
-    private String tel;
+    private String phoneNumber;
 
     @Schema(description = "운영시간", example = "09:00~18:00")
     private String useTime;
@@ -42,9 +42,6 @@ public class PlaceDetailResponse {
 
     @Schema(description = "주차 여부", example = "가능")
     private String parking;
-
-    @Schema(description = "이용요금", example = "무료")
-    private String useFee;
 
     @Schema(description = "홈페이지", example = "https://www.gbgs.go.kr/tour/")
     private String homepage;
@@ -60,14 +57,13 @@ public class PlaceDetailResponse {
                 .id(place.getId())
                 .name(place.getName())
                 .address(toAddress(place))
-                .contentType(place.getContentType().getLabel())
+                .category(place.getContentType().getLabel())
                 .imageUrl(place.getImageUrl())
-                .overview(place.getOverview())
-                .tel(place.getTel())
+                .content(place.getOverview())
+                .phoneNumber(place.getTel())
                 .useTime(place.getUseTime())
                 .restDate(place.getRestDate())
                 .parking(place.getParking())
-                .useFee(place.getUseFee())
                 .homepage(place.getHomepage())
                 .latitude(place.getLatitude())
                 .longitude(place.getLongitude())

@@ -24,7 +24,7 @@ public class PlaceListResponse {
     private String imageUrl;
 
     @Schema(description = "관광지 유형", example = "관광지")
-    private String contentType;
+    private String category;
 
     public static PlaceListResponse from(Place place) {
         return PlaceListResponse.builder()
@@ -32,7 +32,7 @@ public class PlaceListResponse {
                 .name(place.getName())
                 .address(toAddress(place))
                 .imageUrl(toThumbnail(place))
-                .contentType(place.getContentType().getLabel())
+                .category(place.getContentType().getLabel())
                 .build();
     }
 

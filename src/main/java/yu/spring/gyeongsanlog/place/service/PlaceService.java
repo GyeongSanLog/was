@@ -38,4 +38,13 @@ public class PlaceService {
 
         return PlaceDetailResponse.from(place);
     }
+
+    // 랜덤 관광지 조회 (음식점 제외)
+    @Transactional(readOnly = true)
+    public PlaceDetailResponse getRandomPlace() {
+        Place place = placeRepository.findRandomExcluding(ContentType.RESTAURANT.name())
+                .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
+
+        return PlaceDetailResponse.from(place);
+    }
 }
