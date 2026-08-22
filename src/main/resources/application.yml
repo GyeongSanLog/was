@@ -36,6 +36,28 @@ spring:
       hibernate:
         format_sql: true
 
+  jackson:
+    deserialization:
+      # TourAPI는 결과가 0건일 때 items를 객체가 아닌 빈 문자열("")로 내려준다
+      accept-empty-string-as-null-object: true
+
+server:
+  error:
+    # /error를 permitAll로 열어둔 상태라 스택트레이스가 새어나가지 않도록 못 박는다.
+    # 개발 환경에서는 devtools가 이 값을 덮어써 무시되지만, devtools가 빠지는 운영에서는 적용된다.
+    # 주요 오류는 GlobalExceptionHandler가 직접 처리해 /error까지 가지 않는다.
+    include-stacktrace: never
+
+tour-api:
+  service-key: ${TOUR_API_KEY}
+  mobile-app: GyeongsanLog
+  mobile-os: ETC
+  # TourAPI 관광정보 갱신 주기가 일 1회라 매일 새벽 4시에 한 번만 동기화한다
+  sync-cron: "0 0 4 * * *"
+  # 법정동 코드 (47: 경상북도, 290: 경산시)
+  ldong-regn-cd: "47"
+  ldong-signgu-cd: "290"
+
 jwt:
   access-secret: ${ACCESS_SECRET}
   access-expiration: ${ACCESS_EXPIRATION:1800000}
