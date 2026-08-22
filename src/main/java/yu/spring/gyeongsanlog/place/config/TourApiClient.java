@@ -13,6 +13,7 @@ import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import yu.spring.gyeongsanlog.place.config.dto.AreaBasedItem;
 import yu.spring.gyeongsanlog.place.config.dto.DetailCommonItem;
+import yu.spring.gyeongsanlog.place.config.dto.DetailImageItem;
 import yu.spring.gyeongsanlog.place.config.dto.TourApiResponse;
 
 import java.net.URI;
@@ -133,6 +134,23 @@ public class TourApiClient {
 
         List<Map<String, String>> items = response.getItemList();
         return items.isEmpty() ? Collections.emptyMap() : items.get(0);
+    }
+
+    /** 사진 목록(원본+썸네일). 없으면 빈 목록 */
+    public List<DetailImageItem> fetchDetailImages(String contentId) {
+        URI uri = baseRequest("/detailImage2")
+                .queryParam("numOfRows", 20)
+                .queryParam("pageNo", 1)
+                .queryParam("contentId", contentId)
+                .queryParam("imageYN", "Y")
+                .build(true)
+                .toUri();
+
+        TourApiResponse<DetailImageItem> response =
+                request(uri, "detailImage2", new ParameterizedTypeReference<>() {
+                });
+
+        return response.getItemList();
     }
 
     private UriComponentsBuilder baseRequest(String path) {

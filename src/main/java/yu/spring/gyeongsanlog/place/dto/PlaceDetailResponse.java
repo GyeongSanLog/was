@@ -5,8 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import org.springframework.util.StringUtils;
 import yu.spring.gyeongsanlog.place.domain.Place;
+import yu.spring.gyeongsanlog.place.domain.PlaceImage;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Getter
 @Builder
@@ -27,6 +29,9 @@ public class PlaceDetailResponse {
 
     @Schema(description = "대표사진", example = "https://tong.visitkorea.or.kr/...")
     private String imageUrl;
+
+    @Schema(description = "추가 사진 목록. 없으면 빈 배열")
+    private List<String> imageUrls;
 
     @Schema(description = "장소 설명")
     private String content;
@@ -52,13 +57,14 @@ public class PlaceDetailResponse {
     @Schema(description = "경도", example = "128.8066359111")
     private BigDecimal longitude;
 
-    public static PlaceDetailResponse from(Place place) {
+    public static PlaceDetailResponse from(Place place, List<PlaceImage> images) {
         return PlaceDetailResponse.builder()
                 .id(place.getId())
                 .name(place.getName())
                 .address(toAddress(place))
                 .category(place.getContentType().getLabel())
                 .imageUrl(place.getImageUrl())
+                .imageUrls(images.stream().map(PlaceImage::getOriginUrl).toList())
                 .content(place.getOverview())
                 .phoneNumber(place.getTel())
                 .useTime(place.getUseTime())

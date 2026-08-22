@@ -40,7 +40,7 @@ public class PlaceAdminController {
     }
 
     @Operation(summary = "관광지 상세정보 동기화",
-            description = "개요·전화번호·편의시설을 받아온다. 관광지 1곳당 2회 호출하므로 "
+            description = "개요·전화번호·편의시설·사진을 받아온다. 관광지 1곳당 3회 호출하므로 "
                     + "상세정보를 받은 적이 없거나 그 뒤에 정보가 바뀐 곳만 대상으로 한다. 인증 필요.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "동기화 성공",
@@ -53,5 +53,21 @@ public class PlaceAdminController {
     @PostMapping("/sync/detail")
     public ResponseEntity<PlaceDetailSyncResult> syncPlaceDetails() {
         return ResponseEntity.ok(placeSyncService.syncDetails());
+    }
+
+    @Operation(summary = "관광지 사진 동기화 (누락분만)",
+            description = "사진이 하나도 없는 관광지만 골라 detailImage2를 호출한다. "
+                    + "사진 기능을 뒤늦게 추가해 이미 상세정보가 동기화된 기존 관광지를 채워 넣을 때 쓴다. 인증 필요.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공",
+                    content = @Content(schema = @Schema(implementation = PlaceDetailSyncResult.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "502", description = "TourAPI 호출 실패",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/sync/image")
+    public ResponseEntity<PlaceDetailSyncResult> syncMissingImages() {
+        return ResponseEntity.ok(placeSyncService.syncMissingImages());
     }
 }
