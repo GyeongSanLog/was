@@ -12,13 +12,17 @@ import yu.spring.gyeongsanlog.place.config.TourApiClient;
 import yu.spring.gyeongsanlog.place.config.TourApiTextCleaner;
 import yu.spring.gyeongsanlog.place.config.dto.AreaBasedItem;
 import yu.spring.gyeongsanlog.place.config.dto.DetailCommonItem;
+import yu.spring.gyeongsanlog.place.config.dto.DetailImageItem;
+import yu.spring.gyeongsanlog.place.repository.PlaceImageRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /*
  TourAPI의 관광지 정보를 place 테이블에 반영한다.
@@ -32,6 +36,8 @@ public class PlaceSyncService {
 
     private final TourApiClient tourApiClient;
     private final PlaceRepository placeRepository;
+    private final PlaceImageSyncService placeImageSyncService;
+    private final PlaceImageRepository placeImageRepository;
 
     @Transactional
     public PlaceSyncResult syncBasicInfo() {
@@ -97,9 +103,10 @@ public class PlaceSyncService {
     }
 
     /*
-     상세정보는 관광지 1곳당 2회(detailCommon2 + detailIntro2)를 호출한다.
+     상세정보는 관광지 1곳당 3회(detailCommon2 + detailIntro2 + detailImage2)를 호출한다.
      외부 호출이 길어지므로 트랜잭션을 걸지 않고, 조회로 분리(detached)된 엔티티를 수정한 뒤
      마지막에 saveAll로 한 번에 반영한다. 네트워크 대기 동안 DB 커넥션을 잡고 있지 않기 위해서다.
+     사진은 place와 별도 테이블이라 applyDetail 안에서 PlaceImageSyncService를 통해 그때그때 반영한다.
      */
     public PlaceDetailSyncResult syncDetails() {
         List<Place> targets = placeRepository.findAll().stream()
@@ -111,7 +118,7 @@ public class PlaceSyncService {
             return PlaceDetailSyncResult.builder().build();
         }
 
-        log.info("관광지 상세정보 동기화 시작 - 대상 {}건 (API 호출 약 {}회)", targets.size(), targets.size() * 2);
+        log.info("관광지 상세정보 동기화 시작 - 대상 {}건 (API 호출 약 {}회)", targets.size(), targets.size() * 3);
 
         LocalDateTime syncedAt = LocalDateTime.now();
         List<Place> changed = new ArrayList<>();
@@ -140,6 +147,47 @@ public class PlaceSyncService {
                 .build();
     }
 
+    /*
+     사진은 이번에 새로 추가된 항목이라, 이미 상세정보를 동기화해서 needsDetailSync()가
+     false인 기존 관광지들은 syncDetails()로 못 채운다. 사진이 하나도 없는 곳만 골라
+     detailImage2만 호출한다 (관광지당 1회, common/intro는 다시 부르지 않는다).
+     */
+    public PlaceDetailSyncResult syncMissingImages() {
+        Set<Long> withImages = new HashSet<>(placeImageRepository.findAllPlaceIdsWithImages());
+        List<Place> targets = placeRepository.findAll().stream()
+                .filter(place -> !withImages.contains(place.getId()))
+                .toList();
+
+        if (targets.isEmpty()) {
+            log.info("사진 동기화 대상이 없습니다.");
+            return PlaceDetailSyncResult.builder().build();
+        }
+
+        log.info("관광지 사진 동기화 시작 - 대상 {}건 (API 호출 약 {}회)", targets.size(), targets.size());
+
+        int updated = 0;
+        int failed = 0;
+
+        for (Place place : targets) {
+            try {
+                List<DetailImageItem> images = tourApiClient.fetchDetailImages(place.getContentId());
+                placeImageSyncService.replaceImages(place.getId(), images);
+                updated++;
+            } catch (Exception e) {
+                log.warn("사진 동기화 실패 - contentId={}, name={}", place.getContentId(), place.getName(), e);
+                failed++;
+            }
+        }
+
+        log.info("관광지 사진 동기화 완료 - 대상 {}건, 갱신 {}건, 실패 {}건", targets.size(), updated, failed);
+
+        return PlaceDetailSyncResult.builder()
+                .targeted(targets.size())
+                .updated(updated)
+                .failed(failed)
+                .build();
+    }
+
     private void applyDetail(Place place, LocalDateTime syncedAt) {
         DetailCommonItem common = tourApiClient.fetchDetailCommon(place.getContentId());
         if (common != null) {
@@ -159,6 +207,9 @@ public class PlaceSyncService {
                 pick(intro, type.getParkingField()),
                 pick(intro, type.getUseFeeField())
         );
+
+        List<DetailImageItem> images = tourApiClient.fetchDetailImages(place.getContentId());
+        placeImageSyncService.replaceImages(place.getId(), images);
 
         place.markDetailSynced(syncedAt);
     }

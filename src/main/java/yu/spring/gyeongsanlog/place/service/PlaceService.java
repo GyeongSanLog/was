@@ -12,6 +12,7 @@ import yu.spring.gyeongsanlog.place.domain.ContentType;
 import yu.spring.gyeongsanlog.place.domain.Place;
 import yu.spring.gyeongsanlog.place.dto.PlaceDetailResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
+import yu.spring.gyeongsanlog.place.repository.PlaceImageRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
 
 @Service
@@ -19,6 +20,7 @@ import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
 public class PlaceService {
 
     private final PlaceRepository placeRepository;
+    private final PlaceImageRepository placeImageRepository;
 
     // 관광지 목록 조회 (유형 미지정 시 전체)
     @Transactional(readOnly = true)
@@ -36,7 +38,7 @@ public class PlaceService {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
 
-        return PlaceDetailResponse.from(place);
+        return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(placeId));
     }
 
     // 랜덤 관광지 조회 (음식점 제외)
@@ -45,6 +47,6 @@ public class PlaceService {
         Place place = placeRepository.findRandomExcluding(ContentType.RESTAURANT.name())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
 
-        return PlaceDetailResponse.from(place);
+        return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(place.getId()));
     }
 }
