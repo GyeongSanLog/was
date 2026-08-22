@@ -51,6 +51,20 @@ public class PlaceController {
         return ResponseEntity.ok(placeService.getPlaces(type, pageable));
     }
 
+    @Operation(summary = "랜덤 관광지 조회", description = "음식점을 제외한 관광지 중 하나를 무작위로 조회한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공",
+                    content = @Content(schema = @Schema(implementation = PlaceDetailResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "조회 가능한 관광지가 없음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/random")
+    public ResponseEntity<PlaceDetailResponse> getRandomPlace() {
+        return ResponseEntity.ok(placeService.getRandomPlace());
+    }
+
     @Operation(summary = "관광지 상세 조회", description = "관광지 한 곳의 상세 정보를 조회한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공",
