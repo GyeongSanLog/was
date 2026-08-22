@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/api/member/reissue",
             "/api/member/nickname/check",
             "/swagger-ui/**",
-            "/v3/api-docs/**"
+            "/v3/api-docs/**",
+            "/error"
     };
 
     @Bean
