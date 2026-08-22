@@ -13,16 +13,20 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.dto.SliceResponse;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.place.domain.ContentType;
+import yu.spring.gyeongsanlog.place.dto.FavoriteToggleResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceDetailResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
+import yu.spring.gyeongsanlog.place.service.FavoriteService;
 import yu.spring.gyeongsanlog.place.service.PlaceService;
 
 @Tag(name = "area", description = "관광지 조회 API")
@@ -32,6 +36,7 @@ import yu.spring.gyeongsanlog.place.service.PlaceService;
 public class PlaceController {
 
     private final PlaceService placeService;
+    private final FavoriteService favoriteService;
 
     @Operation(summary = "관광지 목록 조회",
             description = "경산시 관광지를 페이지 단위로 조회한다. type을 주면 해당 유형만 조회한다.")
@@ -77,5 +82,21 @@ public class PlaceController {
     @GetMapping("/{placeId}")
     public ResponseEntity<PlaceDetailResponse> getPlace(@PathVariable Long placeId) {
         return ResponseEntity.ok(placeService.getPlace(placeId));
+    }
+
+    @Operation(summary = "관광지 찜 토글", description = "찜한 상태면 취소, 아니면 찜한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "토글 성공",
+                    content = @Content(schema = @Schema(implementation = FavoriteToggleResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 관광지",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/{placeId}/favorite")
+    public ResponseEntity<FavoriteToggleResponse> toggleFavorite(Authentication authentication, @PathVariable Long placeId) {
+        Long userId = Long.valueOf(authentication.getName());
+        boolean favorited = favoriteService.toggleFavorite(userId, placeId);
+        return ResponseEntity.ok(FavoriteToggleResponse.builder().favorited(favorited).build());
     }
 }
