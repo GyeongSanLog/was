@@ -20,6 +20,8 @@ import yu.spring.gyeongsanlog.group.dto.GroupDetailResponse;
 import yu.spring.gyeongsanlog.group.dto.GroupResponse;
 import yu.spring.gyeongsanlog.group.service.GroupService;
 
+import java.util.List;
+
 @Tag(name = "group", description = "그룹 관련 API")
 @RestController
 @RequiredArgsConstructor
@@ -40,6 +42,13 @@ public class GroupController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
+    @Operation(summary = "내가 속한 그룹 목록 조회", description = "로그인한 사용자가 속한 그룹 목록을 최근 참여순으로 조회한다.")
+    @GetMapping
+    public ResponseEntity<List<GroupResponse>> getMyGroups(Authentication authentication) {
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(groupService.getMyGroups(userId));
+    }
+
     @Operation(summary = "초대코드로 그룹 참여", description = "초대코드에 해당하는 그룹에 멤버로 참여한다.")
     @PostMapping("/invite/{inviteCode}/join")
     public ResponseEntity<Void> joinGroup(Authentication authentication, @PathVariable String inviteCode) {

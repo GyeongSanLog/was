@@ -19,4 +19,8 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
 
     @Query("SELECT gm FROM GroupMember gm JOIN FETCH gm.user WHERE gm.group.id = :groupId ORDER BY gm.joinedAt ASC")
     List<GroupMember> findByGroupIdWithUser(@Param("groupId") Long groupId);
+
+    // 최근 참여한 그룹이 먼저 보이도록 구현
+    @Query("SELECT gm FROM GroupMember gm JOIN FETCH gm.group g JOIN FETCH g.leader WHERE gm.user.id = :userId ORDER BY gm.joinedAt DESC")
+    List<GroupMember> findByUserIdWithGroup(@Param("userId") Long userId);
 }

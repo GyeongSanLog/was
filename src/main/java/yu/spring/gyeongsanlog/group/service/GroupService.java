@@ -101,6 +101,13 @@ public class GroupService {
         return GroupDetailResponse.of(group, members);
     }
 
+    @Transactional(readOnly = true)
+    public List<GroupResponse> getMyGroups(Long userId) {
+        return groupMemberRepository.findByUserIdWithGroup(userId).stream()
+                .map(gm -> GroupResponse.from(gm.getGroup()))
+                .toList();
+    }
+
     @Transactional
     public void withdrawGroup(Long userId, Long groupId) {
         TravelGroup group = travelGroupRepository.findById(groupId)
