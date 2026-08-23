@@ -44,12 +44,15 @@ public class TravelGroup extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String inviteCode;
 
+    private String imageUrl;
+
     @Builder
-    public TravelGroup(String name, LocalDateTime startAt, LocalDateTime endAt, User leader, String inviteCode) {
+    public TravelGroup(String name, LocalDateTime startAt, LocalDateTime endAt, User leader, String inviteCode, String imageUrl) {
         this.name = name;
         this.startAt = startAt;
         this.endAt = endAt;
         this.leader = leader;
         this.inviteCode = inviteCode;
+        this.imageUrl = imageUrl;
     }
 }
