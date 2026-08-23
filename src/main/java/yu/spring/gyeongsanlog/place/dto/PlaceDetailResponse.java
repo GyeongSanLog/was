@@ -48,6 +48,15 @@ public class PlaceDetailResponse {
     @Schema(description = "주차 여부", example = "가능")
     private String parking;
 
+    @Schema(description = "엘리베이터 여부. 정보 없으면 null")
+    private String elevator;
+
+    @Schema(description = "화장실 여부. 정보 없으면 null")
+    private String restroom;
+
+    @Schema(description = "유모차 대여 여부. 정보 없으면 null")
+    private String stroller;
+
     @Schema(description = "홈페이지", example = "https://www.gbgs.go.kr/tour/")
     private String homepage;
 
@@ -70,6 +79,9 @@ public class PlaceDetailResponse {
                 .useTime(place.getUseTime())
                 .restDate(place.getRestDate())
                 .parking(place.getParking())
+                .elevator(place.getElevator())
+                .restroom(place.getRestroom())
+                .stroller(place.getStroller())
                 .homepage(place.getHomepage())
                 .latitude(place.getLatitude())
                 .longitude(place.getLongitude())

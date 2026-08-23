@@ -33,6 +33,8 @@ import java.util.Map;
 public class TourApiClient {
 
     private static final String BASE_URL = "https://apis.data.go.kr/B551011/KorService2";
+    // 무장애 여행 정보는 별도 서비스에 있다. contentId 체계는 KorService2와 동일하다.
+    private static final String WITH_SERVICE_BASE_URL = "https://apis.data.go.kr/B551011/KorWithService2";
     private static final int PAGE_SIZE = 100;
     private static final int MAX_PAGES = 20;
 
@@ -153,8 +155,46 @@ public class TourApiClient {
         return response.getItemList();
     }
 
+    /** 무장애 정보가 등록된 관광지의 contentId 목록. 경산시는 소수만 해당한다 */
+    public List<String> fetchAccessibleContentIds() {
+        URI uri = baseRequest(WITH_SERVICE_BASE_URL, "/areaBasedList2")
+                .queryParam("numOfRows", 100)
+                .queryParam("pageNo", 1)
+                .queryParam("lDongRegnCd", ldongRegnCd)
+                .queryParam("lDongSignguCd", ldongSignguCd)
+                .build(true)
+                .toUri();
+
+        TourApiResponse<AreaBasedItem> response =
+                request(uri, "무장애 areaBasedList2", new ParameterizedTypeReference<>() {
+                });
+
+        return response.getItemList().stream().map(AreaBasedItem::getContentid).toList();
+    }
+
+    /** 엘리베이터·화장실·유모차 대여 여부. 해당 항목이 없으면 빈 Map */
+    public Map<String, String> fetchAccessibility(String contentId) {
+        URI uri = baseRequest(WITH_SERVICE_BASE_URL, "/detailWithTour2")
+                .queryParam("numOfRows", 1)
+                .queryParam("pageNo", 1)
+                .queryParam("contentId", contentId)
+                .build(true)
+                .toUri();
+
+        TourApiResponse<Map<String, String>> response =
+                request(uri, "detailWithTour2", new ParameterizedTypeReference<>() {
+                });
+
+        List<Map<String, String>> items = response.getItemList();
+        return items.isEmpty() ? Collections.emptyMap() : items.get(0);
+    }
+
     private UriComponentsBuilder baseRequest(String path) {
-        return UriComponentsBuilder.fromUriString(BASE_URL)
+        return baseRequest(BASE_URL, path);
+    }
+
+    private UriComponentsBuilder baseRequest(String baseUrl, String path) {
+        return UriComponentsBuilder.fromUriString(baseUrl)
                 .path(path)
                 .queryParam("serviceKey", encodedServiceKey)
                 .queryParam("MobileOS", mobileOs)
