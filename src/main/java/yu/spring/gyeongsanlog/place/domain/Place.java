@@ -26,8 +26,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "place", indexes = {
         @Index(name = "idx_place_coord", columnList = "latitude, longitude"),
-        @Index(name = "idx_place_content_type", columnList = "content_type"),
-        @Index(name = "idx_place_lcls", columnList = "lcls_systm1, lcls_systm2")
+        @Index(name = "idx_place_content_type", columnList = "content_type")
 })
 public class Place extends BaseTimeEntity {
 
@@ -80,14 +79,14 @@ public class Place extends BaseTimeEntity {
 
     private String useFee;
 
-    @Column(name = "lcls_systm1", length = 20)
-    private String lclsSystm1;
+    @Column(columnDefinition = "TEXT")
+    private String elevator;
 
-    @Column(name = "lcls_systm2", length = 20)
-    private String lclsSystm2;
+    @Column(columnDefinition = "TEXT")
+    private String restroom;
 
-    @Column(name = "lcls_systm3", length = 20)
-    private String lclsSystm3;
+    @Column(columnDefinition = "TEXT")
+    private String stroller; // 유모차 대여 여부
 
     @Column(length = 10)
     private String ldongRegnCd; // TourAPI 지역 식별 코드(도)
@@ -105,7 +104,6 @@ public class Place extends BaseTimeEntity {
     @Builder
     public Place(String contentId, ContentType contentType, String name, String addr1, String addr2,
                  BigDecimal latitude, BigDecimal longitude, String imageUrl, String thumbnailUrl,
-                 String lclsSystm1, String lclsSystm2, String lclsSystm3,
                  String ldongRegnCd, String ldongSignguCd, LocalDateTime apiModifiedAt) {
         this.contentId = contentId;
         this.contentType = contentType;
@@ -116,9 +114,6 @@ public class Place extends BaseTimeEntity {
         this.longitude = longitude;
         this.imageUrl = imageUrl;
         this.thumbnailUrl = thumbnailUrl;
-        this.lclsSystm1 = lclsSystm1;
-        this.lclsSystm2 = lclsSystm2;
-        this.lclsSystm3 = lclsSystm3;
         this.ldongRegnCd = ldongRegnCd;
         this.ldongSignguCd = ldongSignguCd;
         this.apiModifiedAt = apiModifiedAt;
@@ -127,7 +122,6 @@ public class Place extends BaseTimeEntity {
     // areaBasedList2 재동기화
     public void updateBasicInfo(ContentType contentType, String name, String addr1, String addr2,
                                 BigDecimal latitude, BigDecimal longitude, String imageUrl, String thumbnailUrl,
-                                String lclsSystm1, String lclsSystm2, String lclsSystm3,
                                 LocalDateTime apiModifiedAt) {
         this.contentType = contentType;
         this.name = name;
@@ -137,9 +131,6 @@ public class Place extends BaseTimeEntity {
         this.longitude = longitude;
         this.imageUrl = imageUrl;
         this.thumbnailUrl = thumbnailUrl;
-        this.lclsSystm1 = lclsSystm1;
-        this.lclsSystm2 = lclsSystm2;
-        this.lclsSystm3 = lclsSystm3;
         this.apiModifiedAt = apiModifiedAt;
     }
 
@@ -156,6 +147,13 @@ public class Place extends BaseTimeEntity {
         this.restDate = restDate;
         this.parking = parking;
         this.useFee = useFee;
+    }
+
+    // detailWithTour2
+    public void updateAccessibility(String elevator, String restroom, String stroller) {
+        this.elevator = elevator;
+        this.restroom = restroom;
+        this.stroller = stroller;
     }
 
     public void markDetailSynced(LocalDateTime syncedAt) {

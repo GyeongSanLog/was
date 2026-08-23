@@ -70,4 +70,19 @@ public class PlaceAdminController {
     public ResponseEntity<PlaceDetailSyncResult> syncMissingImages() {
         return ResponseEntity.ok(placeSyncService.syncMissingImages());
     }
+
+    @Operation(summary = "무장애 정보 동기화",
+            description = "엘리베이터·화장실·유모차 대여 여부를 받아온다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "동기화 성공",
+                    content = @Content(schema = @Schema(implementation = PlaceDetailSyncResult.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "502", description = "TourAPI 호출 실패",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/sync/accessibility")
+    public ResponseEntity<PlaceDetailSyncResult> syncAccessibility() {
+        return ResponseEntity.ok(placeSyncService.syncAccessibility());
+    }
 }

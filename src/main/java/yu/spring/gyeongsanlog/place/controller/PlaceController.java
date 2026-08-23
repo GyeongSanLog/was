@@ -29,6 +29,8 @@ import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
 import yu.spring.gyeongsanlog.place.service.FavoriteService;
 import yu.spring.gyeongsanlog.place.service.PlaceService;
 
+import java.util.List;
+
 @Tag(name = "area", description = "관광지 조회 API")
 @RestController
 @RequiredArgsConstructor
@@ -83,6 +85,26 @@ public class PlaceController {
 
         Long userId = Long.valueOf(authentication.getName());
         return ResponseEntity.ok(favoriteService.getFavorites(userId, pageable));
+    }
+
+    @Operation(summary = "여행지 추천",
+            description = "placeId(방문한 곳 기준 가까운 3곳) 또는 category(같은 유형 랜덤 3곳) 중 하나만 입력한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "400", description = "placeId와 category 둘 다 입력했거나 둘 다 비어있음",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 관광지",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/recommendations")
+    public ResponseEntity<List<PlaceListResponse>> getRecommendations(
+            @Parameter(description = "기준이 될 방문 관광지 ID") @RequestParam(required = false) Long placeId,
+            @Parameter(description = "기준이 될 카테고리", example = "TOURIST_SPOT")
+            @RequestParam(required = false) ContentType category) {
+
+        return ResponseEntity.ok(placeService.getRecommendations(placeId, category));
     }
 
     @Operation(summary = "관광지 상세 조회", description = "관광지 한 곳의 상세 정보를 조회한다.")

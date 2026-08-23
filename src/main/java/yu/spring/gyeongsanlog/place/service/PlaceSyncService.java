@@ -82,9 +82,6 @@ public class PlaceSyncService {
                     item.getLongitude(),
                     item.getFirstimage(),
                     item.getFirstimage2(),
-                    item.getLclsSystm1(),
-                    item.getLclsSystm2(),
-                    item.getLclsSystm3(),
                     item.getModifiedAt()
             );
             updated++;
@@ -188,6 +185,50 @@ public class PlaceSyncService {
                 .build();
     }
 
+    /*
+     무장애 정보는 별도 서비스(KorWithService2)에 있고 경산시엔 일부 관광지만 등록돼 있다.
+     대상 목록부터 조회(1회)하고, 그 목록에 해당하는 곳만 detailWithTour2를 호출한다.
+     */
+    public PlaceDetailSyncResult syncAccessibility() {
+        List<String> contentIds = tourApiClient.fetchAccessibleContentIds();
+        List<Place> targets = placeRepository.findAllByContentIdIn(contentIds);
+
+        if (targets.isEmpty()) {
+            log.info("무장애 정보 동기화 대상이 없습니다.");
+            return PlaceDetailSyncResult.builder().build();
+        }
+
+        log.info("무장애 정보 동기화 시작 - 대상 {}건 (API 호출 약 {}회)", targets.size(), targets.size());
+
+        List<Place> changed = new ArrayList<>();
+        int failed = 0;
+
+        for (Place place : targets) {
+            try {
+                Map<String, String> data = tourApiClient.fetchAccessibility(place.getContentId());
+                place.updateAccessibility(
+                        TourApiTextCleaner.clean(data.get("elevator")),
+                        TourApiTextCleaner.clean(data.get("restroom")),
+                        TourApiTextCleaner.clean(data.get("stroller"))
+                );
+                changed.add(place);
+            } catch (Exception e) {
+                log.warn("무장애 정보 동기화 실패 - contentId={}, name={}", place.getContentId(), place.getName(), e);
+                failed++;
+            }
+        }
+
+        placeRepository.saveAll(changed);
+
+        log.info("무장애 정보 동기화 완료 - 대상 {}건, 갱신 {}건, 실패 {}건", targets.size(), changed.size(), failed);
+
+        return PlaceDetailSyncResult.builder()
+                .targeted(targets.size())
+                .updated(changed.size())
+                .failed(failed)
+                .build();
+    }
+
     private void applyDetail(Place place, LocalDateTime syncedAt) {
         DetailCommonItem common = tourApiClient.fetchDetailCommon(place.getContentId());
         if (common != null) {
@@ -244,9 +285,6 @@ public class PlaceSyncService {
                 .longitude(item.getLongitude())
                 .imageUrl(item.getFirstimage())
                 .thumbnailUrl(item.getFirstimage2())
-                .lclsSystm1(item.getLclsSystm1())
-                .lclsSystm2(item.getLclsSystm2())
-                .lclsSystm3(item.getLclsSystm3())
                 .ldongRegnCd(item.getLdongRegnCd())
                 .ldongSignguCd(item.getLdongSignguCd())
                 .apiModifiedAt(item.getModifiedAt())
