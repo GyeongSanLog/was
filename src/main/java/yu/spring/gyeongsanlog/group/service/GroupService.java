@@ -52,6 +52,25 @@ public class GroupService {
         return GroupResponse.from(group);
     }
 
+    @Transactional
+    public GroupResponse joinGroup(Long userId, String inviteCode) {
+        TravelGroup group = travelGroupRepository.findByInviteCode(inviteCode)
+                .orElseThrow(() -> new BusinessException(ErrorCode.GROUP_NOT_FOUND));
+
+        if (groupMemberRepository.existsByGroupIdAndUserId(group.getId(), userId)) {
+            throw new BusinessException(ErrorCode.ALREADY_GROUP_MEMBER);
+        }
+
+        User user = userRepository.getReferenceById(userId);
+        groupMemberRepository.save(GroupMember.builder()
+                .group(group)
+                .user(user)
+                .joinedAt(LocalDateTime.now())
+                .build());
+
+        return GroupResponse.from(group);
+    }
+
     // 초대코드 중복은 사실상 발생하지 않지만(8자 36진수 = 약 2조 경우의 수) 유니크 제약 위반을 막기 위해 재시도
     private String generateUniqueInviteCode() {
         String code;

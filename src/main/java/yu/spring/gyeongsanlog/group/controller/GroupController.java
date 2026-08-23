@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,5 +30,12 @@ public class GroupController {
         Long userId = Long.valueOf(authentication.getName());
         GroupResponse response = groupService.createGroup(userId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+    
+    @Operation(summary = "초대코드로 그룹 참여", description = "초대코드에 해당하는 그룹에 멤버로 참여한다.")
+    @PostMapping("/invite/{inviteCode}/join")
+    public ResponseEntity<GroupResponse> joinGroup(Authentication authentication, @PathVariable String inviteCode) {
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(groupService.joinGroup(userId, inviteCode));
     }
 }
