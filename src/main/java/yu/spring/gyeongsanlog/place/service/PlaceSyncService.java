@@ -82,9 +82,6 @@ public class PlaceSyncService {
                     item.getLongitude(),
                     item.getFirstimage(),
                     item.getFirstimage2(),
-                    item.getLclsSystm1(),
-                    item.getLclsSystm2(),
-                    item.getLclsSystm3(),
                     item.getModifiedAt()
             );
             updated++;
@@ -244,9 +241,6 @@ public class PlaceSyncService {
                 .longitude(item.getLongitude())
                 .imageUrl(item.getFirstimage())
                 .thumbnailUrl(item.getFirstimage2())
-                .lclsSystm1(item.getLclsSystm1())
-                .lclsSystm2(item.getLclsSystm2())
-                .lclsSystm3(item.getLclsSystm3())
                 .ldongRegnCd(item.getLdongRegnCd())
                 .ldongSignguCd(item.getLdongSignguCd())
                 .apiModifiedAt(item.getModifiedAt())

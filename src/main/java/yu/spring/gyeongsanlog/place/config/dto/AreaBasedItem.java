@@ -33,9 +33,6 @@ public class AreaBasedItem {
     private String mapy;
     private String firstimage;
     private String firstimage2;
-    private String lclsSystm1;
-    private String lclsSystm2;
-    private String lclsSystm3;
     private String modifiedtime;
 
     @JsonProperty("lDongRegnCd")
