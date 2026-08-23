@@ -53,7 +53,7 @@ public class GroupService {
     }
 
     @Transactional
-    public GroupResponse joinGroup(Long userId, String inviteCode) {
+    public void joinGroup(Long userId, String inviteCode) {
         TravelGroup group = travelGroupRepository.findByInviteCode(inviteCode)
                 .orElseThrow(() -> new BusinessException(ErrorCode.GROUP_NOT_FOUND));
 
@@ -67,8 +67,6 @@ public class GroupService {
                 .user(user)
                 .joinedAt(LocalDateTime.now())
                 .build());
-
-        return GroupResponse.from(group);
     }
 
     // 초대코드 중복은 사실상 발생하지 않지만(8자 36진수 = 약 2조 경우의 수) 유니크 제약 위반을 막기 위해 재시도

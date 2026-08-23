@@ -34,8 +34,9 @@ public class GroupController {
     
     @Operation(summary = "초대코드로 그룹 참여", description = "초대코드에 해당하는 그룹에 멤버로 참여한다.")
     @PostMapping("/invite/{inviteCode}/join")
-    public ResponseEntity<GroupResponse> joinGroup(Authentication authentication, @PathVariable String inviteCode) {
+    public ResponseEntity<Void> joinGroup(Authentication authentication, @PathVariable String inviteCode) {
         Long userId = Long.valueOf(authentication.getName());
-        return ResponseEntity.ok(groupService.joinGroup(userId, inviteCode));
+        groupService.joinGroup(userId, inviteCode);
+        return ResponseEntity.noContent().build();
     }
 }
