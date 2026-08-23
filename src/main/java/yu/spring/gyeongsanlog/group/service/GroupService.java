@@ -3,8 +3,11 @@ package yu.spring.gyeongsanlog.group.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import yu.spring.gyeongsanlog.common.dto.FileDetailDto;
 import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
+import yu.spring.gyeongsanlog.common.util.S3Uploader;
 import yu.spring.gyeongsanlog.group.domain.GroupMember;
 import yu.spring.gyeongsanlog.group.domain.TravelGroup;
 import yu.spring.gyeongsanlog.group.dto.CreateGroupRequest;
@@ -31,11 +34,19 @@ public class GroupService {
     private final TravelGroupRepository travelGroupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final S3Uploader s3Uploader;
 
     @Transactional
-    public GroupResponse createGroup(Long userId, CreateGroupRequest request) {
+    public GroupResponse createGroup(Long userId, CreateGroupRequest request, MultipartFile image) {
         User leader = userRepository.findById(userId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            FileDetailDto meta = s3Uploader.makeMetaData(image, "GROUP_IMAGE");
+            s3Uploader.uploadFile(meta.getKey(), image);
+            imageUrl = s3Uploader.getPublicUrl(meta.getKey());
+        }
 
         TravelGroup group = TravelGroup.builder()
                 .name(request.getName())
@@ -43,6 +54,7 @@ public class GroupService {
                 .endAt(request.getEndAt())
                 .leader(leader)
                 .inviteCode(generateUniqueInviteCode())
+                .imageUrl(imageUrl)
                 .build();
         travelGroupRepository.save(group);
 

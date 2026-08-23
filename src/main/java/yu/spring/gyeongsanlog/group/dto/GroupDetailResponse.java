@@ -16,6 +16,7 @@ public class GroupDetailResponse {
     private LocalDateTime endAt;
     private String inviteCode;
     private Long leaderId;
+    private String imageUrl;
     private List<GroupMemberResponse> members;
 
     public static GroupDetailResponse of(TravelGroup group, List<GroupMemberResponse> members) {
@@ -26,6 +27,7 @@ public class GroupDetailResponse {
                 .endAt(group.getEndAt())
                 .inviteCode(group.getInviteCode())
                 .leaderId(group.getLeader().getId())
+                .imageUrl(group.getImageUrl())
                 .members(members)
                 .build();
     }

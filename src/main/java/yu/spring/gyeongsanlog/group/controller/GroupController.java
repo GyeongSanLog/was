@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import yu.spring.gyeongsanlog.group.dto.CreateGroupRequest;
 import yu.spring.gyeongsanlog.group.dto.GroupDetailResponse;
 import yu.spring.gyeongsanlog.group.dto.GroupResponse;
@@ -27,11 +28,15 @@ public class GroupController {
 
     private final GroupService groupService;
 
-    @Operation(summary = "그룹 생성", description = "새 여행 그룹을 생성하고 생성자를 리더 겸 멤버로 등록한다.")
-    @PostMapping
-    public ResponseEntity<GroupResponse> createGroup(Authentication authentication, @Valid @RequestBody CreateGroupRequest request) {
+    @Operation(summary = "그룹 생성", description = "새 여행 그룹을 생성하고 생성자를 리더 겸 멤버로 등록한다. 그룹 사진은 선택사항이다.")
+    @PostMapping(consumes = "multipart/form-data")
+    public ResponseEntity<GroupResponse> createGroup(
+            Authentication authentication,
+            @Valid @RequestPart("request") CreateGroupRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
         Long userId = Long.valueOf(authentication.getName());
-        GroupResponse response = groupService.createGroup(userId, request);
+        GroupResponse response = groupService.createGroup(userId, request, image);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
     
