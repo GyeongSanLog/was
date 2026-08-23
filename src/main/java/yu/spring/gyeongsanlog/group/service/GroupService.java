@@ -89,6 +89,29 @@ public class GroupService {
         return GroupDetailResponse.of(group, members);
     }
 
+    @Transactional
+    public void withdrawGroup(Long userId, Long groupId) {
+        TravelGroup group = travelGroupRepository.findById(groupId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.GROUP_NOT_FOUND));
+
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
+            throw new BusinessException(ErrorCode.GROUP_NOT_FOUND);
+        }
+
+        if (!group.getLeader().getId().equals(userId)) {
+            groupMemberRepository.deleteByGroupIdAndUserId(groupId, userId);
+            return;
+        }
+
+        // 리더는 그룹에 혼자 남았을 때만 탈퇴 가능하며, 이 경우 그룹 자체를 삭제한다
+        List<GroupMember> members = groupMemberRepository.findByGroupId(groupId);
+        if (members.size() > 1) {
+            throw new BusinessException(ErrorCode.LEADER_CANNOT_LEAVE);
+        }
+        groupMemberRepository.deleteAll(members);
+        travelGroupRepository.delete(group);
+    }
+
     // 초대코드 중복은 사실상 발생하지 않지만(8자 36진수 = 약 2조 경우의 수) 유니크 제약 위반을 막기 위해 재시도
     private String generateUniqueInviteCode() {
         String code;

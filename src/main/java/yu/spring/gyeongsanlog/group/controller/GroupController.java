@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,5 +48,13 @@ public class GroupController {
     public ResponseEntity<GroupDetailResponse> getGroupDetail(Authentication authentication, @PathVariable Long groupId) {
         Long userId = Long.valueOf(authentication.getName());
         return ResponseEntity.ok(groupService.getGroupDetail(userId, groupId));
+    }
+
+    @Operation(summary = "그룹 탈퇴", description = "그룹에서 탈퇴한다. 리더는 그룹에 혼자 남았을 때만 탈퇴 가능하며 이 경우 그룹이 삭제된다.")
+    @DeleteMapping("/{groupId}/withdraw")
+    public ResponseEntity<Void> withdrawGroup(Authentication authentication, @PathVariable Long groupId) {
+        Long userId = Long.valueOf(authentication.getName());
+        groupService.withdrawGroup(userId, groupId);
+        return ResponseEntity.noContent().build();
     }
 }
