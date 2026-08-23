@@ -8,6 +8,8 @@ import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import yu.spring.gyeongsanlog.group.domain.GroupMember;
 import yu.spring.gyeongsanlog.group.domain.TravelGroup;
 import yu.spring.gyeongsanlog.group.dto.CreateGroupRequest;
+import yu.spring.gyeongsanlog.group.dto.GroupDetailResponse;
+import yu.spring.gyeongsanlog.group.dto.GroupMemberResponse;
 import yu.spring.gyeongsanlog.group.dto.GroupResponse;
 import yu.spring.gyeongsanlog.group.repository.GroupMemberRepository;
 import yu.spring.gyeongsanlog.group.repository.TravelGroupRepository;
@@ -16,6 +18,7 @@ import yu.spring.gyeongsanlog.user.repository.UserRepository;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -67,6 +70,23 @@ public class GroupService {
                 .user(user)
                 .joinedAt(LocalDateTime.now())
                 .build());
+    }
+
+    @Transactional(readOnly = true)
+    public GroupDetailResponse getGroupDetail(Long userId, Long groupId) {
+        TravelGroup group = travelGroupRepository.findById(groupId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.GROUP_NOT_FOUND));
+
+        // 멤버가 아니면 그룹 존재 여부 자체를 숨기기 위해 404로 응답
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
+            throw new BusinessException(ErrorCode.GROUP_NOT_FOUND);
+        }
+
+        List<GroupMemberResponse> members = groupMemberRepository.findByGroupIdWithUser(groupId).stream()
+                .map(GroupMemberResponse::from)
+                .toList();
+
+        return GroupDetailResponse.of(group, members);
     }
 
     // 초대코드 중복은 사실상 발생하지 않지만(8자 36진수 = 약 2조 경우의 수) 유니크 제약 위반을 막기 위해 재시도

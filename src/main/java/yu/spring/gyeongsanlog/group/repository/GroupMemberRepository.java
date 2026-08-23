@@ -1,6 +1,8 @@
 package yu.spring.gyeongsanlog.group.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import yu.spring.gyeongsanlog.group.domain.GroupMember;
 
 import java.util.List;
@@ -12,4 +14,7 @@ public interface GroupMemberRepository extends JpaRepository<GroupMember, Long> 
     List<GroupMember> findByUserId(Long userId);
 
     boolean existsByGroupIdAndUserId(Long groupId, Long userId);
+
+    @Query("SELECT gm FROM GroupMember gm JOIN FETCH gm.user WHERE gm.group.id = :groupId ORDER BY gm.joinedAt ASC")
+    List<GroupMember> findByGroupIdWithUser(@Param("groupId") Long groupId);
 }

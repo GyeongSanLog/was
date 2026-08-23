@@ -7,12 +7,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.group.dto.CreateGroupRequest;
+import yu.spring.gyeongsanlog.group.dto.GroupDetailResponse;
 import yu.spring.gyeongsanlog.group.dto.GroupResponse;
 import yu.spring.gyeongsanlog.group.service.GroupService;
 
@@ -38,5 +40,12 @@ public class GroupController {
         Long userId = Long.valueOf(authentication.getName());
         groupService.joinGroup(userId, inviteCode);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "그룹 상세 조회", description = "그룹 정보와 멤버 목록을 조회한다. 그룹 멤버만 조회 가능하다.")
+    @GetMapping("/{groupId}")
+    public ResponseEntity<GroupDetailResponse> getGroupDetail(Authentication authentication, @PathVariable Long groupId) {
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(groupService.getGroupDetail(userId, groupId));
     }
 }
