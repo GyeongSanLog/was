@@ -10,9 +10,12 @@ import yu.spring.gyeongsanlog.group.repository.GroupMemberRepository;
 import yu.spring.gyeongsanlog.group.repository.TravelGroupRepository;
 import yu.spring.gyeongsanlog.letter.domain.Letter;
 import yu.spring.gyeongsanlog.letter.dto.LetterResponse;
+import yu.spring.gyeongsanlog.letter.dto.LetterListResponse;
 import yu.spring.gyeongsanlog.letter.dto.WriteLetterRequest;
 import yu.spring.gyeongsanlog.letter.repository.LetterRepository;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -65,5 +68,17 @@ public class LetterService {
         }
 
         return LetterResponse.from(letter);
+    }
+
+    // 비멤버는 그룹 존재 여부 자체를 숨기기 위해 404로 응답
+    @Transactional(readOnly = true)
+    public List<LetterListResponse> getMyLetters(Long userId, Long groupId) {
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
+            throw new BusinessException(ErrorCode.GROUP_NOT_FOUND);
+        }
+
+        return letterRepository.findByGroupIdAndReceiverIdWithSender(groupId, userId).stream()
+                .map(LetterListResponse::from)
+                .toList();
     }
 }

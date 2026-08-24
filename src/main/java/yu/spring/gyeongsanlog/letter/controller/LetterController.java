@@ -14,8 +14,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.letter.dto.LetterResponse;
+import yu.spring.gyeongsanlog.letter.dto.LetterListResponse;
 import yu.spring.gyeongsanlog.letter.dto.WriteLetterRequest;
 import yu.spring.gyeongsanlog.letter.service.LetterService;
+
+import java.util.List;
 
 @Tag(name = "letter", description = "편지 관련 API")
 @RestController
@@ -35,6 +38,13 @@ public class LetterController {
         Long userId = Long.valueOf(authentication.getName());
         LetterResponse response = letterService.writeLetter(userId, groupId, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "받은 편지 목록 조회", description = "이 그룹에서 내가 받은 편지 목록을 최근순으로 조회한다. 보낸 사람 닉네임과 작성 시각만 담긴다.")
+    @GetMapping("/{groupId}/letters")
+    public ResponseEntity<List<LetterListResponse>> getMyLetters(Authentication authentication, @PathVariable Long groupId) {
+        Long userId = Long.valueOf(authentication.getName());
+        return ResponseEntity.ok(letterService.getMyLetters(userId, groupId));
     }
 
     @Operation(summary = "편지 조회", description = "편지를 조회한다. 받는 사람만 조회할 수 있다.")

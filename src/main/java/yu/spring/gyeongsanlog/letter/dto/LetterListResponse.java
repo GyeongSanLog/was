@@ -8,20 +8,16 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class LetterResponse {
+public class LetterListResponse {
     private Long letterId;
-    private Long writerId;
     private String writerNickname;
     private LocalDateTime createdAt;
-    private String content;
 
-    public static LetterResponse from(Letter letter) {
-        return LetterResponse.builder()
+    public static LetterListResponse from(Letter letter) {
+        return LetterListResponse.builder()
                 .letterId(letter.getId())
-                .writerId(letter.getSender().getId())
                 .writerNickname(letter.getSender().getNickname())
                 .createdAt(letter.getCreatedAt())
-                .content(letter.getContent())
                 .build();
     }
 }
