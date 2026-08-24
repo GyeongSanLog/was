@@ -2,6 +2,8 @@ package yu.spring.gyeongsanlog.group.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -46,6 +48,12 @@ public class TravelGroup extends BaseTimeEntity {
 
     private String imageUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MergeStatus mergeStatus = MergeStatus.NOT_STARTED;
+
+    private String mergedVideoUrl;
+
     @Builder
     public TravelGroup(String name, LocalDateTime startAt, LocalDateTime endAt, User leader, String inviteCode, String imageUrl) {
         this.name = name;
@@ -54,5 +62,18 @@ public class TravelGroup extends BaseTimeEntity {
         this.leader = leader;
         this.inviteCode = inviteCode;
         this.imageUrl = imageUrl;
+    }
+
+    public void startMerging() {
+        this.mergeStatus = MergeStatus.PROCESSING;
+    }
+
+    public void completeMerge(String mergedVideoUrl) {
+        this.mergeStatus = MergeStatus.DONE;
+        this.mergedVideoUrl = mergedVideoUrl;
+    }
+
+    public void failMerge() {
+        this.mergeStatus = MergeStatus.FAILED;
     }
 }

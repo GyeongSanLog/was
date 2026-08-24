@@ -1,4 +1,4 @@
-package yu.spring.gyeongsanlog.clip.domain;
+package yu.spring.gyeongsanlog.letter.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,16 +18,14 @@ import yu.spring.gyeongsanlog.common.domain.BaseTimeEntity;
 import yu.spring.gyeongsanlog.group.domain.TravelGroup;
 import yu.spring.gyeongsanlog.user.domain.User;
 
-import java.time.LocalDateTime;
-
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(
-        name = "clip",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"group_id", "user_id", "slot_index"})
+        name = "letter",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"group_id", "sender_id", "receiver_id"})
 )
-public class Clip extends BaseTimeEntity {
+public class Letter extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,27 +36,21 @@ public class Clip extends BaseTimeEntity {
     private TravelGroup group;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "sender_id", nullable = false)
+    private User sender;
 
-    @Column(nullable = false)
-    private String videoUrl;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver_id", nullable = false)
+    private User receiver;
 
-    private String comment;
-
-    @Column(nullable = false)
-    private Integer slotIndex;
-
-    @Column(nullable = false)
-    private LocalDateTime capturedAt;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
     @Builder
-    public Clip(TravelGroup group, User user, String videoUrl, String comment, Integer slotIndex, LocalDateTime capturedAt) {
+    public Letter(TravelGroup group, User sender, User receiver, String content) {
         this.group = group;
-        this.user = user;
-        this.videoUrl = videoUrl;
-        this.comment = comment;
-        this.slotIndex = slotIndex;
-        this.capturedAt = capturedAt;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.content = content;
     }
 }

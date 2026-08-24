@@ -63,3 +63,9 @@ jwt:
   access-expiration: ${ACCESS_EXPIRATION:1800000}
   refresh-secret: ${REFRESH_SECRET}
   refresh-expiration: ${REFRESH_EXPIRATION:1209600000}
+
+merge:
+  # BM 도현체(OFL 라이선스, fonts/ 디렉터리에 번들). 컨테이너는 Dockerfile이 /app/fonts로 복사. 로컬 Windows는 .env의 FONT_PATH로 오버라이드
+  font-path: ${FONT_PATH:/app/fonts/DoHyeon-Regular.ttf}
+  # 슬롯이 1시간 단위라 굳이 자주 돌 필요 없어서 매시 2분에 한 번, endAt이 지났는데 아직 병합 안 된 그룹을 찾는다
+  scan-cron: "${MERGE_SCAN_CRON:0 2 * * * *}"
