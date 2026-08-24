@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,10 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "clip")
+@Table(
+        name = "clip",
+        uniqueConstraints = @UniqueConstraint(columnNames = {"group_id", "user_id", "slot_index"})
+)
 public class Clip extends BaseTimeEntity {
 
     @Id

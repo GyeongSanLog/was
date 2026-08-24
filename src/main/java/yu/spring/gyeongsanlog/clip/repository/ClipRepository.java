@@ -10,4 +10,6 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
     List<Clip> findByGroupIdOrderByCapturedAtAsc(Long groupId);
 
     List<Clip> findByGroupIdAndUserId(Long groupId, Long userId);
+
+    boolean existsByGroupIdAndUserIdAndSlotIndex(Long groupId, Long userId, Integer slotIndex);
 }
