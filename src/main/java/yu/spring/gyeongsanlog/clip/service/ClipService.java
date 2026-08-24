@@ -18,6 +18,7 @@ import yu.spring.gyeongsanlog.group.repository.TravelGroupRepository;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
 
 import java.time.Duration;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -63,5 +64,21 @@ public class ClipService {
         clipRepository.save(clip);
 
         return ClipResponse.from(clip);
+    }
+
+    // 비멤버에게는 그룹 존재 여부 자체를 숨기기 위해 404로 응답
+    @Transactional(readOnly = true)
+    public List<ClipResponse> getClipFeed(Long userId, Long groupId) {
+        if (!travelGroupRepository.existsById(groupId)) {
+            throw new BusinessException(ErrorCode.GROUP_NOT_FOUND);
+        }
+
+        if (!groupMemberRepository.existsByGroupIdAndUserId(groupId, userId)) {
+            throw new BusinessException(ErrorCode.GROUP_NOT_FOUND);
+        }
+
+        return clipRepository.findByGroupIdWithUser(groupId).stream()
+                .map(ClipResponse::from)
+                .toList();
     }
 }

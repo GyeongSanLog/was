@@ -2,6 +2,7 @@ package yu.spring.gyeongsanlog.group.dto;
 
 import lombok.Builder;
 import lombok.Getter;
+import yu.spring.gyeongsanlog.group.domain.MergeStatus;
 import yu.spring.gyeongsanlog.group.domain.TravelGroup;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,8 @@ public class GroupResponse {
     private String inviteCode;
     private Long leaderId;
     private String imageUrl;
+    private MergeStatus mergeStatus;
+    private String mergedVideoUrl;
 
     public static GroupResponse from(TravelGroup group) {
         return GroupResponse.builder()
@@ -26,6 +29,8 @@ public class GroupResponse {
                 .inviteCode(group.getInviteCode())
                 .leaderId(group.getLeader().getId())
                 .imageUrl(group.getImageUrl())
+                .mergeStatus(group.getMergeStatus())
+                .mergedVideoUrl(group.getMergedVideoUrl())
                 .build();
     }
 }

@@ -15,6 +15,8 @@ import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Set;
 import java.util.UUID;
@@ -78,6 +80,18 @@ public class S3Uploader {
     public void uploadFile(String uploadKey, MultipartFile file) {
         validateFile(file);
         fileUpload(file, uploadKey);
+    }
+
+    // ffmpeg 결과물 등 서버가 로컬에 만든 파일을 업로드할 때 사용 (MultipartFile 기반 검증 대상이 아님)
+    public void uploadFile(String uploadKey, Path filePath) {
+        try {
+            s3Template.upload(bucket, uploadKey, Files.newInputStream(filePath));
+        } catch (IOException e) {
+            throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED);
+        } catch (S3Exception e) {
+            log.error("S3 파일 업로드 실패. key: {}", uploadKey, e);
+            throw new BusinessException(ErrorCode.FILE_UPLOAD_FAILED);
+        }
     }
 
     public String getSignedUrl(String key) {
