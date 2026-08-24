@@ -14,6 +14,10 @@ public enum ErrorCode {
     LEADER_CANNOT_LEAVE(HttpStatus.CONFLICT, "LEADER_CANNOT_LEAVE", "다른 멤버가 있는 동안에는 리더가 탈퇴할 수 없습니다."),
     DUPLICATE_CLIP_SLOT(HttpStatus.CONFLICT, "DUPLICATE_CLIP_SLOT", "해당 시간대에 이미 업로드한 클립이 있습니다."),
     INVALID_CAPTURED_AT(HttpStatus.BAD_REQUEST, "INVALID_CAPTURED_AT", "촬영 시각이 그룹 시작 시각보다 이전일 수 없습니다."),
+    SELF_LETTER_NOT_ALLOWED(HttpStatus.BAD_REQUEST, "SELF_LETTER_NOT_ALLOWED", "자기 자신에게는 편지를 남길 수 없습니다."),
+    RECEIVER_NOT_GROUP_MEMBER(HttpStatus.BAD_REQUEST, "RECEIVER_NOT_GROUP_MEMBER", "받는 사람이 그룹 멤버가 아닙니다."),
+    DUPLICATE_LETTER(HttpStatus.CONFLICT, "DUPLICATE_LETTER", "이미 이 사람에게 편지를 남겼습니다."),
+    LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "LETTER_NOT_FOUND", "존재하지 않는 편지입니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "유효하지 않은 토큰입니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "DUPLICATE_NICKNAME", "이미 사용중인 닉네임입니다."),
 
