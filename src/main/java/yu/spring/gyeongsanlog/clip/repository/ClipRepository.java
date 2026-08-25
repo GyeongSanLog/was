@@ -17,4 +17,6 @@ public interface ClipRepository extends JpaRepository<Clip, Long> {
 
     @Query("SELECT c FROM Clip c JOIN FETCH c.user WHERE c.group.id = :groupId ORDER BY c.capturedAt ASC")
     List<Clip> findByGroupIdWithUser(@Param("groupId") Long groupId);
+
+    void deleteByGroupId(Long groupId);
 }
