@@ -64,6 +64,11 @@ jwt:
   refresh-secret: ${REFRESH_SECRET}
   refresh-expiration: ${REFRESH_EXPIRATION:1209600000}
 
+oauth:
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:}
+    client-secret: ${KAKAO_CLIENT_SECRET:}
+
 merge:
   # BM 도현체(OFL 라이선스, fonts/ 디렉터리에 번들). 컨테이너는 Dockerfile이 /app/fonts로 복사. 로컬 Windows는 .env의 FONT_PATH로 오버라이드
   font-path: ${FONT_PATH:/app/fonts/DoHyeon-Regular.ttf}

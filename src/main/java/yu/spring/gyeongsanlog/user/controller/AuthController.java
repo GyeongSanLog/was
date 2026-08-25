@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
+import yu.spring.gyeongsanlog.user.dto.KakaoLoginRequest;
 import yu.spring.gyeongsanlog.user.dto.MemberLoginRequest;
 import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
@@ -59,6 +60,21 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@Valid @RequestBody MemberLoginRequest request) {
         return ResponseEntity.ok(authService.login(request));
+    }
+
+    @Operation(summary = "카카오 로그인",
+            description = "프론트가 받은 카카오 인가 코드로 로그인한다. 가입 이력이 없으면 자동으로 가입 후 토큰을 발급한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인/가입 성공 및 토큰 발급",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "400", description = "인가 코드 또는 redirect_uri 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "카카오 사용자 정보 조회 실패",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/kakao/login")
+    public ResponseEntity<TokenResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
+        return ResponseEntity.ok(authService.kakaoLogin(request));
     }
 
     @Operation(summary = "토큰 재발급", description = "refresh token으로 access/refresh 토큰을 재발급한다.")
