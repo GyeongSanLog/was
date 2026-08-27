@@ -19,6 +19,8 @@ public enum ErrorCode {
     DUPLICATE_LETTER(HttpStatus.CONFLICT, "DUPLICATE_LETTER", "이미 이 사람에게 편지를 남겼습니다."),
     LETTER_NOT_FOUND(HttpStatus.NOT_FOUND, "LETTER_NOT_FOUND", "존재하지 않는 편지입니다."),
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "유효하지 않은 토큰입니다."),
+    KAKAO_TOKEN_FAILED(HttpStatus.BAD_REQUEST, "KAKAO_TOKEN_FAILED", "카카오 토큰 발급에 실패했습니다. 인가 코드 또는 redirect_uri를 확인해주세요."),
+    KAKAO_PROFILE_FAILED(HttpStatus.UNAUTHORIZED, "KAKAO_PROFILE_FAILED", "카카오 사용자 정보 조회에 실패했습니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "DUPLICATE_NICKNAME", "이미 사용중인 닉네임입니다."),
 
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "FILE_EMPTY", "파일이 비어있습니다."),

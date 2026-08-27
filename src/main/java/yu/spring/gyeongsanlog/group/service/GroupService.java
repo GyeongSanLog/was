@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import yu.spring.gyeongsanlog.common.dto.FileDetailDto;
 import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
+import yu.spring.gyeongsanlog.clip.repository.ClipRepository;
 import yu.spring.gyeongsanlog.common.util.S3Uploader;
 import yu.spring.gyeongsanlog.group.domain.GroupMember;
 import yu.spring.gyeongsanlog.group.domain.TravelGroup;
@@ -16,6 +17,7 @@ import yu.spring.gyeongsanlog.group.dto.GroupMemberResponse;
 import yu.spring.gyeongsanlog.group.dto.GroupResponse;
 import yu.spring.gyeongsanlog.group.repository.GroupMemberRepository;
 import yu.spring.gyeongsanlog.group.repository.TravelGroupRepository;
+import yu.spring.gyeongsanlog.letter.repository.LetterRepository;
 import yu.spring.gyeongsanlog.user.domain.User;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
 
@@ -34,6 +36,8 @@ public class GroupService {
     private final TravelGroupRepository travelGroupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final UserRepository userRepository;
+    private final ClipRepository clipRepository;
+    private final LetterRepository letterRepository;
     private final S3Uploader s3Uploader;
 
     @Transactional
@@ -122,11 +126,13 @@ public class GroupService {
             return;
         }
 
-        // 리더는 그룹에 혼자 남았을 때만 탈퇴 가능하며, 이 경우 그룹 자체를 삭제한다
+        // 리더는 그룹에 혼자 남았을 때만 탈퇴 가능하며, 이 경우 그룹 자체를 삭제한다.
         List<GroupMember> members = groupMemberRepository.findByGroupId(groupId);
         if (members.size() > 1) {
             throw new BusinessException(ErrorCode.LEADER_CANNOT_LEAVE);
         }
+        clipRepository.deleteByGroupId(groupId);
+        letterRepository.deleteByGroupId(groupId);
         groupMemberRepository.deleteAll(members);
         travelGroupRepository.delete(group);
     }

@@ -69,6 +69,8 @@ jobs:
             echo "ACCESS_SECRET=${{ secrets.ACCESS_SECRET }}" >> .env
             echo "REFRESH_SECRET=${{ secrets.REFRESH_SECRET }}" >> .env
             echo "TOUR_API_KEY=${{ secrets.TOUR_API_KEY }}" >> .env
+            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
+            echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
             docker compose pull
             docker compose up -d
             docker image prune -f

@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/api/member/register",
             "/api/member/login",
             "/api/member/reissue",
+            "/api/member/kakao/login",
             "/api/member/nickname/check",
             "/swagger-ui/**",
             "/v3/api-docs/**",
