@@ -39,5 +39,9 @@ out/
 ### Env ###
 .env
 
+### Firebase 서비스 계정 키 (절대 커밋 금지) ###
+secrets/
+*firebase-adminsdk*.json
+
 ### Claude Code ###
 .claude/settings.local.json

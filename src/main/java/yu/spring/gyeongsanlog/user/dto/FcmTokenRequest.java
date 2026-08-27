@@ -1,0 +1,12 @@
+package yu.spring.gyeongsanlog.user.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+public class FcmTokenRequest {
+    @NotBlank
+    private String fcmToken;
+}

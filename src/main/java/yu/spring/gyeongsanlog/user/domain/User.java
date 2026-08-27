@@ -48,6 +48,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "provider_id")
     private String providerId;
 
+    // FCM 푸시 발송용 기기 토큰.
+    private String fcmToken;
+
     @Builder
     public User(String email, String nickname, String name, String password, String profileImageUrl, Provider provider, String providerId) {
         this.email = email;
@@ -73,5 +76,9 @@ public class User extends BaseTimeEntity {
 
     public void changeProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 }
