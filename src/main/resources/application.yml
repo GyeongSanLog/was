@@ -77,6 +77,14 @@ jwt:
   refresh-secret: ${REFRESH_SECRET}
   refresh-expiration: ${REFRESH_EXPIRATION:1209600000}
 
+notification:
+  # 매시 정각에 진행 중인 그룹 멤버에게 촬영 알림 발송
+  clip-reminder-cron: "${CLIP_REMINDER_CRON:0 0 * * * *}"
+
+firebase:
+  # 서비스 계정 키 경로. 로컬은 레포의 secrets/(gitignore됨), 운영 컨테이너는 배포 시 주입되는 경로를 쓴다.
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:secrets/firebase-service-account.json}
+
 oauth:
   kakao:
     client-id: ${KAKAO_CLIENT_ID:}

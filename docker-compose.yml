@@ -47,6 +47,10 @@ services:
       KAKAO_CLIENT_SECRET: ${KAKAO_CLIENT_SECRET}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
+      FIREBASE_SERVICE_ACCOUNT_PATH: /app/secrets/firebase-service-account.json
+    volumes:
+      # EC2에서 복원한 키 파일을 읽기 전용으로 마운트한다
+      - ./secrets:/app/secrets:ro
     ports:
       - "8080:8080"
 

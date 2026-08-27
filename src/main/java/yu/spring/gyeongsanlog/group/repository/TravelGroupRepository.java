@@ -13,4 +13,7 @@ public interface TravelGroupRepository extends JpaRepository<TravelGroup, Long> 
     Optional<TravelGroup> findByInviteCode(String inviteCode);
 
     List<TravelGroup> findByEndAtBeforeAndMergeStatus(LocalDateTime endAt, MergeStatus mergeStatus);
+
+    // 지금 여행이 진행 중인 그룹 (알림 발송 대상)
+    List<TravelGroup> findByStartAtBeforeAndEndAtAfter(LocalDateTime start, LocalDateTime end);
 }

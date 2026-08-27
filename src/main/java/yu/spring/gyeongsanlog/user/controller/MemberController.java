@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.user.dto.ChangePasswordRequest;
+import yu.spring.gyeongsanlog.user.dto.FcmTokenRequest;
 import yu.spring.gyeongsanlog.user.dto.MemberProfileResponse;
 import yu.spring.gyeongsanlog.user.dto.UpdateProfileRequest;
 import yu.spring.gyeongsanlog.user.service.MemberService;
@@ -52,6 +53,17 @@ public class MemberController {
     public ResponseEntity<Void> changePassword(Authentication authentication, @Valid @RequestBody ChangePasswordRequest request) {
         Long userId = Long.valueOf(authentication.getName());
         memberService.changePassword(userId, request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "FCM 토큰 등록", description = "푸시 알림을 받을 기기 토큰을 등록/갱신한다. 로그인 후와 토큰 갱신 시 호출한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "등록 성공")
+    })
+    @PatchMapping("/fcm-token")
+    public ResponseEntity<Void> updateFcmToken(Authentication authentication, @Valid @RequestBody FcmTokenRequest request) {
+        Long userId = Long.valueOf(authentication.getName());
+        memberService.updateFcmToken(userId, request.getFcmToken());
         return ResponseEntity.noContent().build();
     }
 

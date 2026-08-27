@@ -68,4 +68,13 @@ public class MemberService {
 
         return MemberProfileResponse.from(user);
     }
+
+    // 푸시 알림용 기기 토큰 등록/갱신.
+    @Transactional
+    public void updateFcmToken(Long userId, String fcmToken) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        user.updateFcmToken(fcmToken);
+    }
 }
