@@ -21,6 +21,10 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "INVALID_TOKEN", "유효하지 않은 토큰입니다."),
     KAKAO_TOKEN_FAILED(HttpStatus.BAD_REQUEST, "KAKAO_TOKEN_FAILED", "카카오 토큰 발급에 실패했습니다. 인가 코드 또는 redirect_uri를 확인해주세요."),
     KAKAO_PROFILE_FAILED(HttpStatus.UNAUTHORIZED, "KAKAO_PROFILE_FAILED", "카카오 사용자 정보 조회에 실패했습니다."),
+    EMAIL_SEND_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "EMAIL_SEND_FAILED", "인증 메일 발송에 실패했습니다."),
+    EMAIL_CODE_MISMATCH(HttpStatus.BAD_REQUEST, "EMAIL_CODE_MISMATCH", "인증코드가 일치하지 않거나 만료되었습니다."),
+    EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "EMAIL_NOT_VERIFIED", "이메일 인증이 완료되지 않았습니다."),
+    EMAIL_SEND_TOO_OFTEN(HttpStatus.TOO_MANY_REQUESTS, "EMAIL_SEND_TOO_OFTEN", "인증 메일은 잠시 후 다시 요청할 수 있습니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "DUPLICATE_NICKNAME", "이미 사용중인 닉네임입니다."),
 
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "FILE_EMPTY", "파일이 비어있습니다."),

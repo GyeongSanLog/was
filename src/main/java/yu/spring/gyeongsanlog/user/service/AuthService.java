@@ -30,12 +30,17 @@ public class AuthService {
     private final JwtTokenProvider jwtTokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
     private final KakaoOauthClient kakaoOauthClient;
+    private final EmailVerificationService emailVerificationService;
 
     //회원가입
     @Transactional
     public TokenResponse register(SignUpRequest request) {
         if (userRepository.existsByEmailAndProvider(request.getEmail(), Provider.LOCAL)) {
             throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+        }
+        // 메일로 받은 코드 검증을 먼저 통과해야 가입할 수 있다
+        if (!emailVerificationService.isVerified(request.getEmail())) {
+            throw new BusinessException(ErrorCode.EMAIL_NOT_VERIFIED);
         }
 
         User user = User.builder()
@@ -47,6 +52,7 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
+        emailVerificationService.clearVerified(request.getEmail());
 
         return issueTokens(user);
     }
