@@ -18,12 +18,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
+import yu.spring.gyeongsanlog.user.dto.EmailSendRequest;
+import yu.spring.gyeongsanlog.user.dto.EmailVerifyRequest;
 import yu.spring.gyeongsanlog.user.dto.KakaoLoginRequest;
 import yu.spring.gyeongsanlog.user.dto.MemberLoginRequest;
 import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
 import yu.spring.gyeongsanlog.user.dto.TokenResponse;
 import yu.spring.gyeongsanlog.user.service.AuthService;
+import yu.spring.gyeongsanlog.user.service.EmailVerificationService;
 
 @Tag(name = "auth", description = "회원 인증 관련 API")
 @RestController
@@ -33,8 +36,35 @@ import yu.spring.gyeongsanlog.user.service.AuthService;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
 
-    @Operation(summary = "회원가입", description = "사용자의 정보를 받아 회원가입 진행 후 토큰을 반환한다.")
+    @Operation(summary = "이메일 인증코드 발송", description = "가입하려는 이메일로 6자리 인증코드를 발송한다. 코드는 5분간 유효하며 60초 내 재발송은 제한된다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "발송 성공"),
+            @ApiResponse(responseCode = "409", description = "이미 가입된 이메일",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "429", description = "재발송 대기 시간 미경과",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/email/send")
+    public ResponseEntity<Void> sendEmailCode(@Valid @RequestBody EmailSendRequest request) {
+        emailVerificationService.sendCode(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "이메일 인증코드 검증", description = "발송된 인증코드를 검증한다. 통과하면 30분 안에 해당 이메일로 회원가입할 수 있다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "인증 성공"),
+            @ApiResponse(responseCode = "400", description = "인증코드 불일치 또는 만료",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/email/verify")
+    public ResponseEntity<Void> verifyEmailCode(@Valid @RequestBody EmailVerifyRequest request) {
+        emailVerificationService.verifyCode(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "회원가입", description = "사용자의 정보를 받아 회원가입 진행 후 토큰을 반환한다. 이메일 인증을 먼저 통과해야 한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "회원가입 성공 및 토큰 발급",
                     content = @Content(schema = @Schema(implementation = TokenResponse.class))),
