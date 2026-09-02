@@ -15,6 +15,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import yu.spring.gyeongsanlog.common.domain.BaseTimeEntity;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,6 +53,9 @@ public class User extends BaseTimeEntity {
     // FCM 푸시 발송용 기기 토큰.
     private String fcmToken;
 
+    // null이면 활성 계정. GroupMember/Clip/Letter가 이 User를 계속 참조하므로 행은 지우지 않고 익명화한다.
+    private LocalDateTime deletedAt;
+
     @Builder
     public User(String email, String nickname, String name, String password, String profileImageUrl, Provider provider, String providerId) {
         this.email = email;
@@ -80,5 +85,19 @@ public class User extends BaseTimeEntity {
 
     public void updateFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public void withdraw() {
+        this.deletedAt = LocalDateTime.now();
+        this.email = "withdrawn_" + this.id + "@deleted.local";
+        this.password = null;
+        this.nickname = "탈퇴한 사용자";
+        this.name = "탈퇴한 사용자";
+        this.profileImageUrl = null;
+        this.fcmToken = null;
+    }
+
+    public boolean isDeleted() {
+        return deletedAt != null;
     }
 }

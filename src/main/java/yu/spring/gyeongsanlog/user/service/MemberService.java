@@ -8,12 +8,17 @@ import org.springframework.web.multipart.MultipartFile;
 import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import yu.spring.gyeongsanlog.common.dto.FileDetailDto;
+import yu.spring.gyeongsanlog.common.jwt.RefreshTokenRepository;
 import yu.spring.gyeongsanlog.common.util.S3Uploader;
+import yu.spring.gyeongsanlog.group.repository.GroupMemberRepository;
+import yu.spring.gyeongsanlog.group.service.GroupService;
 import yu.spring.gyeongsanlog.user.domain.User;
 import yu.spring.gyeongsanlog.user.dto.ChangePasswordRequest;
 import yu.spring.gyeongsanlog.user.dto.MemberProfileResponse;
 import yu.spring.gyeongsanlog.user.dto.UpdateProfileRequest;
 import yu.spring.gyeongsanlog.user.repository.UserRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +27,9 @@ public class MemberService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final S3Uploader s3Uploader;
+    private final GroupMemberRepository groupMemberRepository;
+    private final GroupService groupService;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     // 회원 정보 조회
     @Transactional(readOnly = true)
@@ -76,5 +84,21 @@ public class MemberService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         user.updateFcmToken(fcmToken);
+    }
+
+    // 회원 탈퇴 (소프트 삭제). 가입한 모든 그룹에서 먼저 탈퇴시키고(다른 멤버가 있는 그룹의 리더면 여기서 막힌다),
+    // Clip/Letter가 계속 User를 참조하므로 User 행은 남기고 익명화한다.
+    @Transactional
+    public void withdraw(Long userId, String refreshToken) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+
+        List<Long> groupIds = groupMemberRepository.findByUserId(userId).stream()
+                .map(gm -> gm.getGroup().getId())
+                .toList();
+        groupIds.forEach(groupId -> groupService.withdrawGroup(userId, groupId));
+
+        user.withdraw();
+        refreshTokenRepository.deleteByToken(refreshToken);
     }
 }

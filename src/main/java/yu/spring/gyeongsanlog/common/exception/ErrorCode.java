@@ -26,6 +26,7 @@ public enum ErrorCode {
     EMAIL_NOT_VERIFIED(HttpStatus.BAD_REQUEST, "EMAIL_NOT_VERIFIED", "이메일 인증이 완료되지 않았습니다."),
     EMAIL_SEND_TOO_OFTEN(HttpStatus.TOO_MANY_REQUESTS, "EMAIL_SEND_TOO_OFTEN", "인증 메일은 잠시 후 다시 요청할 수 있습니다."),
     DUPLICATE_NICKNAME(HttpStatus.CONFLICT, "DUPLICATE_NICKNAME", "이미 사용중인 닉네임입니다."),
+    WITHDRAWN_USER(HttpStatus.FORBIDDEN, "WITHDRAWN_USER", "탈퇴한 계정입니다."),
 
     FILE_EMPTY(HttpStatus.BAD_REQUEST, "FILE_EMPTY", "파일이 비어있습니다."),
     FILENAME_MISSING(HttpStatus.BAD_REQUEST, "FILENAME_MISSING", "파일 이름이 없습니다."),
