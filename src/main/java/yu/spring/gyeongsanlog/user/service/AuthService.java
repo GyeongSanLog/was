@@ -80,6 +80,11 @@ public class AuthService {
         User user = userRepository.findByProviderAndProviderId(Provider.KAKAO, providerId)
                 .orElseGet(() -> registerKakaoUser(providerId, profile));
 
+        // 탈퇴해도 provider/providerId는 남겨두므로, 여기서 막지 않으면 재로그인으로 계정이 되살아난다
+        if (user.isDeleted()) {
+            throw new BusinessException(ErrorCode.WITHDRAWN_USER);
+        }
+
         return issueTokens(user);
     }
 
@@ -137,6 +142,11 @@ public class AuthService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
         refreshTokenRepository.deleteByToken(refreshToken);
+
+        // 탈퇴 후에도 행이 남아있어 findById는 성공하므로, 만료 전 refresh token으로 재발급되는 걸 막는다
+        if (user.isDeleted()) {
+            throw new BusinessException(ErrorCode.WITHDRAWN_USER);
+        }
 
         return issueTokens(user);
     }

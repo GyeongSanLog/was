@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.user.dto.ChangePasswordRequest;
 import yu.spring.gyeongsanlog.user.dto.FcmTokenRequest;
 import yu.spring.gyeongsanlog.user.dto.MemberProfileResponse;
+import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
 import yu.spring.gyeongsanlog.user.dto.UpdateProfileRequest;
 import yu.spring.gyeongsanlog.user.service.MemberService;
 
@@ -82,5 +84,19 @@ public class MemberController {
     ) {
         Long userId = Long.valueOf(authentication.getName());
         return ResponseEntity.ok(memberService.updateProfile(userId, request, profileImage));
+    }
+
+    @Operation(summary = "회원 탈퇴",
+            description = "계정을 탈퇴 처리한다(소프트 삭제). 다른 멤버가 있는 그룹의 리더는 탈퇴할 수 없다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "탈퇴 성공"),
+            @ApiResponse(responseCode = "409", description = "다른 멤버가 있는 그룹의 리더라 탈퇴 불가",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @DeleteMapping
+    public ResponseEntity<Void> withdraw(Authentication authentication, @Valid @RequestBody RefreshRequest request) {
+        Long userId = Long.valueOf(authentication.getName());
+        memberService.withdraw(userId, request.getRefreshToken());
+        return ResponseEntity.noContent().build();
     }
 }
