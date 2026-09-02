@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 import yu.spring.gyeongsanlog.common.domain.BaseTimeEntity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /*
@@ -79,6 +80,10 @@ public class Place extends BaseTimeEntity {
 
     private String useFee;
 
+    private LocalDate eventStartDate; // 축제 전용
+
+    private LocalDate eventEndDate; // 축제 전용
+
     @Column(columnDefinition = "TEXT")
     private String elevator;
 
@@ -141,12 +146,15 @@ public class Place extends BaseTimeEntity {
     }
 
     // detailIntro2
-    public void updateIntro(String tel, String useTime, String restDate, String parking, String useFee) {
+    public void updateIntro(String tel, String useTime, String restDate, String parking, String useFee,
+                            LocalDate eventStartDate, LocalDate eventEndDate) {
         this.tel = tel;
         this.useTime = useTime;
         this.restDate = restDate;
         this.parking = parking;
         this.useFee = useFee;
+        this.eventStartDate = eventStartDate;
+        this.eventEndDate = eventEndDate;
     }
 
     // detailWithTour2

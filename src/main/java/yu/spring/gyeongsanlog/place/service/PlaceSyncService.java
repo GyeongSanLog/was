@@ -16,7 +16,9 @@ import yu.spring.gyeongsanlog.place.config.dto.DetailImageItem;
 import yu.spring.gyeongsanlog.place.repository.PlaceImageRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -246,7 +248,9 @@ public class PlaceSyncService {
                 pick(intro, type.getUseTimeField()),
                 pick(intro, type.getRestDateField()),
                 pick(intro, type.getParkingField()),
-                pick(intro, type.getUseFeeField())
+                pick(intro, type.getUseFeeField()),
+                pickDate(intro, type.getEventStartDateField()),
+                pickDate(intro, type.getEventEndDateField())
         );
 
         List<DetailImageItem> images = tourApiClient.fetchDetailImages(place.getContentId());
@@ -258,6 +262,20 @@ public class PlaceSyncService {
     /** 해당 타입에 없는 항목은 필드명이 null이라 조회하지 않는다 (예: 축제는 휴무일 필드가 없다) */
     private String pick(Map<String, String> intro, String field) {
         return field == null ? null : TourApiTextCleaner.clean(intro.get(field));
+    }
+
+    private static final DateTimeFormatter EVENT_DATE_FORMAT = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+    private LocalDate pickDate(Map<String, String> intro, String field) {
+        String value = pick(intro, field);
+        if (value == null) {
+            return null;
+        }
+        try {
+            return LocalDate.parse(value, EVENT_DATE_FORMAT);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private ContentType resolveContentType(AreaBasedItem item) {

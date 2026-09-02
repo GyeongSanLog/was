@@ -11,15 +11,15 @@ import java.util.Arrays;
 @Getter
 public enum ContentType {
 
-    TOURIST_SPOT("12", "관광지", "infocenter", "usetime", "restdate", "parking", null),
-    CULTURAL("14", "문화시설", "infocenterculture", "usetimeculture", "restdateculture", "parkingculture", "usefee"),
+    TOURIST_SPOT("12", "관광지", "infocenter", "usetime", "restdate", "parking", null, null, null),
+    CULTURAL("14", "문화시설", "infocenterculture", "usetimeculture", "restdateculture", "parkingculture", "usefee", null, null),
     // 축제는 usetimefestival이 '이용요금'이고 운영시간은 playtime이다. 휴무일/주차 필드는 없음
-    FESTIVAL("15", "축제", "sponsor1tel", "playtime", null, null, "usetimefestival"),
+    FESTIVAL("15", "축제", "sponsor1tel", "playtime", null, null, "usetimefestival", "eventstartdate", "eventenddate"),
     // 경산 소재 2곳 모두 detailIntro2 응답이 비어 있어 실측하지 못했다. 명세 기준 필드명
-    LEPORTS("28", "레포츠", "infocenterleports", "usetimeleports", "restdateleports", "parkingleports", "usefeeleports"),
-    LODGING("32", "숙박", "infocenterlodging", "checkintime", null, "parkinglodging", null),
-    SHOPPING("38", "쇼핑", "infocentershopping", "opentime", "restdateshopping", "parkingshopping", null),
-    RESTAURANT("39", "음식점", "infocenterfood", "opentimefood", "restdatefood", "parkingfood", null);
+    LEPORTS("28", "레포츠", "infocenterleports", "usetimeleports", "restdateleports", "parkingleports", "usefeeleports", null, null),
+    LODGING("32", "숙박", "infocenterlodging", "checkintime", null, "parkinglodging", null, null, null),
+    SHOPPING("38", "쇼핑", "infocentershopping", "opentime", "restdateshopping", "parkingshopping", null, null, null),
+    RESTAURANT("39", "음식점", "infocenterfood", "opentimefood", "restdatefood", "parkingfood", null, null, null);
 
     private final String code;
     private final String label;
@@ -28,9 +28,12 @@ public enum ContentType {
     private final String restDateField;
     private final String parkingField;
     private final String useFeeField;
+    private final String eventStartDateField;
+    private final String eventEndDateField;
 
     ContentType(String code, String label, String telField, String useTimeField,
-                String restDateField, String parkingField, String useFeeField) {
+                String restDateField, String parkingField, String useFeeField,
+                String eventStartDateField, String eventEndDateField) {
         this.code = code;
         this.label = label;
         this.telField = telField;
@@ -38,6 +41,8 @@ public enum ContentType {
         this.restDateField = restDateField;
         this.parkingField = parkingField;
         this.useFeeField = useFeeField;
+        this.eventStartDateField = eventStartDateField;
+        this.eventEndDateField = eventEndDateField;
     }
 
     public static ContentType from(String code) {

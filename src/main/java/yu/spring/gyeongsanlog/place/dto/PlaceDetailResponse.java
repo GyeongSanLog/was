@@ -8,6 +8,7 @@ import yu.spring.gyeongsanlog.place.domain.Place;
 import yu.spring.gyeongsanlog.place.domain.PlaceImage;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Getter
@@ -48,6 +49,12 @@ public class PlaceDetailResponse {
     @Schema(description = "주차 여부", example = "가능")
     private String parking;
 
+    @Schema(description = "축제 시작일. 축제가 아니면 null", example = "2026-09-19")
+    private LocalDate eventStartDate;
+
+    @Schema(description = "축제 종료일. 축제가 아니면 null", example = "2026-09-20")
+    private LocalDate eventEndDate;
+
     @Schema(description = "엘리베이터 여부. 정보 없으면 null")
     private String elevator;
 
@@ -79,6 +86,8 @@ public class PlaceDetailResponse {
                 .useTime(place.getUseTime())
                 .restDate(place.getRestDate())
                 .parking(place.getParking())
+                .eventStartDate(place.getEventStartDate())
+                .eventEndDate(place.getEventEndDate())
                 .elevator(place.getElevator())
                 .restroom(place.getRestroom())
                 .stroller(place.getStroller())
