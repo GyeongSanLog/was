@@ -10,8 +10,10 @@ import yu.spring.gyeongsanlog.common.exception.BusinessException;
 import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import yu.spring.gyeongsanlog.place.domain.ContentType;
 import yu.spring.gyeongsanlog.place.domain.Place;
+import yu.spring.gyeongsanlog.place.dto.PopularPlaceResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceDetailResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
+import yu.spring.gyeongsanlog.place.repository.PopularPlaceCacheRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceImageRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
 
@@ -27,6 +29,7 @@ public class PlaceService {
 
     private final PlaceRepository placeRepository;
     private final PlaceImageRepository placeImageRepository;
+    private final PopularPlaceCacheRepository popularPlaceCacheRepository;
 
     // 관광지 목록 조회 (유형 미지정 시 전체)
     @Transactional(readOnly = true)
@@ -53,6 +56,12 @@ public class PlaceService {
         return placeRepository.findActiveFestivals().stream()
                 .map(PlaceListResponse::from)
                 .toList();
+    }
+
+    // 중심 관광지 TOP3 (Redis 캐시. 아직 동기화 전이면 빈 목록)
+    @Transactional(readOnly = true)
+    public List<PopularPlaceResponse> getPopularPlaces() {
+        return popularPlaceCacheRepository.find();
     }
 
     // 랜덤 관광지 조회 (음식점 제외)

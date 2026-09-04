@@ -14,6 +14,7 @@ import yu.spring.gyeongsanlog.common.exception.ErrorCode;
 import yu.spring.gyeongsanlog.place.config.dto.AreaBasedItem;
 import yu.spring.gyeongsanlog.place.config.dto.DetailCommonItem;
 import yu.spring.gyeongsanlog.place.config.dto.DetailImageItem;
+import yu.spring.gyeongsanlog.place.config.dto.PopularPlaceItem;
 import yu.spring.gyeongsanlog.place.config.dto.TourApiResponse;
 
 import java.net.URI;
@@ -35,6 +36,8 @@ public class TourApiClient {
     private static final String BASE_URL = "https://apis.data.go.kr/B551011/KorService2";
     // 무장애 여행 정보는 별도 서비스에 있다. contentId 체계는 KorService2와 동일하다.
     private static final String WITH_SERVICE_BASE_URL = "https://apis.data.go.kr/B551011/KorWithService2";
+    // 중심 관광지 정보도 별도 서비스이며, KorService2와 무관한 자체 코드(hubTatsCd) 체계를 쓴다.
+    private static final String POPULAR_SERVICE_BASE_URL = "https://apis.data.go.kr/B551011/LocgoHubTarService1";
     private static final int PAGE_SIZE = 100;
     private static final int MAX_PAGES = 20;
 
@@ -44,13 +47,17 @@ public class TourApiClient {
     private final String mobileOs;
     private final String ldongRegnCd;
     private final String ldongSignguCd;
+    private final String popularAreaCd;
+    private final String popularSignguCd;
 
     public TourApiClient(JsonMapper jsonMapper,
                          @Value("${tour-api.service-key}") String serviceKey,
                          @Value("${tour-api.mobile-app}") String mobileApp,
                          @Value("${tour-api.mobile-os}") String mobileOs,
                          @Value("${tour-api.ldong-regn-cd}") String ldongRegnCd,
-                         @Value("${tour-api.ldong-signgu-cd}") String ldongSignguCd) {
+                         @Value("${tour-api.ldong-signgu-cd}") String ldongSignguCd,
+                         @Value("${tour-api.popular-area-cd}") String popularAreaCd,
+                         @Value("${tour-api.popular-signgu-cd}") String popularSignguCd) {
         // 기본 RestClient가 아니라 스프링이 설정한 JsonMapper를 물려준다.
         // TourAPI는 결과가 0건일 때 items를 빈 문자열("")로 주는데,
         // application.yml의 accept-empty-string-as-null-object가 이 매퍼에만 적용되기 때문이다.
@@ -66,6 +73,8 @@ public class TourApiClient {
         this.mobileOs = mobileOs;
         this.ldongRegnCd = ldongRegnCd;
         this.ldongSignguCd = ldongSignguCd;
+        this.popularAreaCd = popularAreaCd;
+        this.popularSignguCd = popularSignguCd;
     }
 
     /**
@@ -187,6 +196,27 @@ public class TourApiClient {
 
         List<Map<String, String>> items = response.getItemList();
         return items.isEmpty() ? Collections.emptyMap() : items.get(0);
+    }
+
+    /**
+     * 경산시 중심 관광지 순위(연결이 가장 많은 순). 월 1회(매월 8일) 갱신되므로 baseYm은
+     * 이번 달 데이터가 아직 없을 수 있어 호출부에서 지난달로 재시도한다.
+     */
+    public List<PopularPlaceItem> fetchPopularPlaces(String baseYm) {
+        URI uri = baseRequest(POPULAR_SERVICE_BASE_URL, "/areaBasedList1")
+                .queryParam("numOfRows", 100)
+                .queryParam("pageNo", 1)
+                .queryParam("baseYm", baseYm)
+                .queryParam("areaCd", popularAreaCd)
+                .queryParam("signguCd", popularSignguCd)
+                .build(true)
+                .toUri();
+
+        TourApiResponse<PopularPlaceItem> response =
+                request(uri, "중심관광지 areaBasedList1", new ParameterizedTypeReference<>() {
+                });
+
+        return response.getItemList();
     }
 
     private UriComponentsBuilder baseRequest(String path) {
