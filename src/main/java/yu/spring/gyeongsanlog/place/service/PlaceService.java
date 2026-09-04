@@ -47,6 +47,14 @@ public class PlaceService {
         return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(placeId));
     }
 
+    // 진행 중인 축제 목록 (개수가 적어 페이지네이션 없이 전체 반환)
+    @Transactional(readOnly = true)
+    public List<PlaceListResponse> getActiveFestivals() {
+        return placeRepository.findActiveFestivals().stream()
+                .map(PlaceListResponse::from)
+                .toList();
+    }
+
     // 랜덤 관광지 조회 (음식점 제외)
     @Transactional(readOnly = true)
     public PlaceDetailResponse getRandomPlace() {

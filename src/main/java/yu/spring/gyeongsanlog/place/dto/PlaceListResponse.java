@@ -6,10 +6,13 @@ import lombok.Getter;
 import org.springframework.util.StringUtils;
 import yu.spring.gyeongsanlog.place.domain.Place;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 @Schema(description = "관광지 목록 항목")
-public class PlaceListResponse {
+public class
+PlaceListResponse {
 
     @Schema(description = "관광지 ID", example = "1")
     private Long id;
@@ -26,6 +29,12 @@ public class PlaceListResponse {
     @Schema(description = "관광지 유형", example = "관광지")
     private String category;
 
+    @Schema(description = "축제 시작일. 축제가 아니거나 정보가 없으면 null", example = "2026-09-19")
+    private LocalDate eventStartDate;
+
+    @Schema(description = "축제 종료일. 축제가 아니거나 정보가 없으면 null", example = "2026-09-20")
+    private LocalDate eventEndDate;
+
     public static PlaceListResponse from(Place place) {
         return PlaceListResponse.builder()
                 .id(place.getId())
@@ -33,6 +42,8 @@ public class PlaceListResponse {
                 .address(toAddress(place))
                 .imageUrl(toThumbnail(place))
                 .category(place.getContentType().getLabel())
+                .eventStartDate(place.getEventStartDate())
+                .eventEndDate(place.getEventEndDate())
                 .build();
     }
 
