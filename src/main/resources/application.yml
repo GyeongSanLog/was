@@ -70,6 +70,11 @@ tour-api:
   # 법정동 코드 (47: 경상북도, 290: 경산시)
   ldong-regn-cd: "47"
   ldong-signgu-cd: "290"
+  # 중심 관광지 정보(LocgoHubTarService1)는 법정동 코드가 아니라 별도의 지역/시군구 코드를 쓴다
+  popular-area-cd: "47"
+  popular-signgu-cd: "47290"
+  # 중심 관광지 데이터는 매월 8일에만 갱신되므로 다음날인 매월 9일 새벽 5시에 한 번만 동기화한다
+  popular-sync-cron: "0 0 5 9 * *"
 
 jwt:
   access-secret: ${ACCESS_SECRET}

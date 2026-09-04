@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceDetailSyncResult;
 import yu.spring.gyeongsanlog.place.dto.PlaceSyncResult;
+import yu.spring.gyeongsanlog.place.service.PopularPlaceSyncService;
 import yu.spring.gyeongsanlog.place.service.PlaceSyncService;
 
 @Tag(name = "area-admin", description = "관광지 데이터 관리 API")
@@ -23,6 +24,7 @@ import yu.spring.gyeongsanlog.place.service.PlaceSyncService;
 public class PlaceAdminController {
 
     private final PlaceSyncService placeSyncService;
+    private final PopularPlaceSyncService popularPlaceSyncService;
 
     @Operation(summary = "관광지 기본 정보 동기화",
             description = "TourAPI에서 경산시 관광정보를 받아 place 테이블에 반영한다. 인증 필요.")
@@ -84,5 +86,19 @@ public class PlaceAdminController {
     @PostMapping("/sync/accessibility")
     public ResponseEntity<PlaceDetailSyncResult> syncAccessibility() {
         return ResponseEntity.ok(placeSyncService.syncAccessibility());
+    }
+
+    @Operation(summary = "중심 관광지 TOP3 동기화",
+            description = "경산시에서 가장 많이 연결되는 중심 관광지 TOP3를 받아와 Redis에 캐싱한다. "
+                    + "매월 9일 자동으로도 돌지만, 즉시 반영이 필요할 때 수동으로 호출한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "동기화 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/sync/popular")
+    public ResponseEntity<Void> syncPopularPlaces() {
+        popularPlaceSyncService.syncTop3();
+        return ResponseEntity.noContent().build();
     }
 }

@@ -24,6 +24,7 @@ import yu.spring.gyeongsanlog.common.dto.SliceResponse;
 import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
 import yu.spring.gyeongsanlog.place.domain.ContentType;
 import yu.spring.gyeongsanlog.place.dto.FavoriteToggleResponse;
+import yu.spring.gyeongsanlog.place.dto.PopularPlaceResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceDetailResponse;
 import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
 import yu.spring.gyeongsanlog.place.service.FavoriteService;
@@ -68,6 +69,19 @@ public class PlaceController {
     @GetMapping("/festivals")
     public ResponseEntity<List<PlaceListResponse>> getActiveFestivals() {
         return ResponseEntity.ok(placeService.getActiveFestivals());
+    }
+
+    @Operation(summary = "중심 관광지 TOP3 조회",
+            description = "경산시에서 가장 많이 연결되는 중심 관광지 TOP3를 조회한다. "
+                    + "TourAPI 원본 그대로이며 자체 관광지(place)와는 연결되지 않는다. 아직 동기화 전이면 빈 목록.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/popular")
+    public ResponseEntity<List<PopularPlaceResponse>> getPopularPlaces() {
+        return ResponseEntity.ok(placeService.getPopularPlaces());
     }
 
     @Operation(summary = "랜덤 관광지 조회", description = "음식점을 제외한 관광지 중 하나를 무작위로 조회한다.")
