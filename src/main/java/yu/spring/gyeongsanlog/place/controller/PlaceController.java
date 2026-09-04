@@ -71,8 +71,8 @@ public class PlaceController {
         return ResponseEntity.ok(placeService.getActiveFestivals());
     }
 
-    @Operation(summary = "중심 관광지 TOP3 조회",
-            description = "경산시에서 가장 많이 연결되는 중심 관광지 TOP3를 조회한다. "
+    @Operation(summary = "중심 관광지 TOP5 조회",
+            description = "경산시에서 가장 많이 연결되는 중심 관광지 TOP5를 조회한다. "
                     + "TourAPI 원본 그대로이며 자체 관광지(place)와는 연결되지 않는다. 아직 동기화 전이면 빈 목록.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공"),

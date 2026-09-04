@@ -88,8 +88,8 @@ public class PlaceAdminController {
         return ResponseEntity.ok(placeSyncService.syncAccessibility());
     }
 
-    @Operation(summary = "중심 관광지 TOP3 동기화",
-            description = "경산시에서 가장 많이 연결되는 중심 관광지 TOP3를 받아와 Redis에 캐싱한다. "
+    @Operation(summary = "중심 관광지 TOP5 동기화",
+            description = "경산시에서 가장 많이 연결되는 중심 관광지 TOP5를 받아와 Redis에 캐싱한다. "
                     + "매월 9일 자동으로도 돌지만, 즉시 반영이 필요할 때 수동으로 호출한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "204", description = "동기화 성공"),
@@ -98,7 +98,7 @@ public class PlaceAdminController {
     })
     @PostMapping("/sync/popular")
     public ResponseEntity<Void> syncPopularPlaces() {
-        popularPlaceSyncService.syncTop3();
+        popularPlaceSyncService.syncTop5();
         return ResponseEntity.noContent().build();
     }
 }
