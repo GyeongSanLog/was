@@ -21,7 +21,7 @@ public class PopularPlaceSyncScheduler {
     public void syncPopularPlaces() {
         log.info("중심 관광지 동기화 스케줄러 시작");
         try {
-            popularPlaceSyncService.syncTop3();
+            popularPlaceSyncService.syncTop5();
         } catch (Exception e) {
             log.error("중심 관광지 동기화 스케줄러 실패", e);
         }

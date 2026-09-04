@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 /*
- 중심 관광지 TOP3는 월 1회만 갱신되는 외부 데이터라 DB가 아닌 Redis에 캐싱한다.
+ 중심 관광지 TOP5는 월 1회만 갱신되는 외부 데이터라 DB가 아닌 Redis에 캐싱한다.
  매월 9일에 스케줄러가 갱신하므로, 캐시가 비어 있으면 아직 첫 동기화 전이라는 뜻이다.
  */
 @Repository

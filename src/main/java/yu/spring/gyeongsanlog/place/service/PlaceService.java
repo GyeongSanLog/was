@@ -58,7 +58,7 @@ public class PlaceService {
                 .toList();
     }
 
-    // 중심 관광지 TOP3 (Redis 캐시. 아직 동기화 전이면 빈 목록)
+    // 중심 관광지 TOP5 (Redis 캐시. 아직 동기화 전이면 빈 목록)
     @Transactional(readOnly = true)
     public List<PopularPlaceResponse> getPopularPlaces() {
         return popularPlaceCacheRepository.find();
