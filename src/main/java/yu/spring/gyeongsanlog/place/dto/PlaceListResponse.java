@@ -11,7 +11,8 @@ import java.time.LocalDate;
 @Getter
 @Builder
 @Schema(description = "관광지 목록 항목")
-public class PlaceListResponse {
+public class
+PlaceListResponse {
 
     @Schema(description = "관광지 ID", example = "1")
     private Long id;

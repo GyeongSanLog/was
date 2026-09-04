@@ -58,6 +58,18 @@ public class PlaceController {
         return ResponseEntity.ok(placeService.getPlaces(type, pageable));
     }
 
+    @Operation(summary = "진행 중인 축제 목록 조회",
+            description = "종료되지 않은 축제를 시작일순으로 전체 조회한다. 개수가 적어 페이지네이션이 없다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/festivals")
+    public ResponseEntity<List<PlaceListResponse>> getActiveFestivals() {
+        return ResponseEntity.ok(placeService.getActiveFestivals());
+    }
+
     @Operation(summary = "랜덤 관광지 조회", description = "음식점을 제외한 관광지 중 하나를 무작위로 조회한다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "조회 성공",

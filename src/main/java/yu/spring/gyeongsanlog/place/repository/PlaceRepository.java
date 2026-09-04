@@ -30,6 +30,12 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     @Query("SELECT p FROM Place p WHERE p.contentType = :contentType AND " + ACTIVE_CONDITION)
     Slice<Place> findByContentType(@Param("contentType") ContentType contentType, Pageable pageable);
 
+    // 진행 중인 축제는 경산시 특성상 몇 개 안 되므로 페이지네이션 없이 전체를 시작일순으로 반환한다
+    @Query("SELECT p FROM Place p WHERE p.contentType = 'FESTIVAL' "
+            + "AND (p.eventEndDate IS NULL OR p.eventEndDate >= CURRENT_DATE) "
+            + "ORDER BY p.eventStartDate ASC")
+    List<Place> findActiveFestivals();
+
     @Query(value = "SELECT * FROM place WHERE content_type <> :excluded "
             + "AND (content_type <> 'FESTIVAL' OR event_end_date IS NULL OR event_end_date >= CURDATE()) "
             + "ORDER BY RAND() LIMIT 1", nativeQuery = true)
