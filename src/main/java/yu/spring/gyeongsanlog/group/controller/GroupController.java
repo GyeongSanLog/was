@@ -49,7 +49,7 @@ public class GroupController {
         return ResponseEntity.ok(groupService.getMyGroups(userId));
     }
 
-    @Operation(summary = "초대코드로 그룹 참여", description = "초대코드에 해당하는 그룹에 멤버로 참여한다.")
+    @Operation(summary = "초대코드로 그룹 참여", description = "초대코드에 해당하는 그룹에 멤버로 참여한다. 그룹 최대 인원(10명)을 넘으면 참여할 수 없다.")
     @PostMapping("/invite/{inviteCode}/join")
     public ResponseEntity<Void> joinGroup(Authentication authentication, @PathVariable String inviteCode) {
         Long userId = Long.valueOf(authentication.getName());

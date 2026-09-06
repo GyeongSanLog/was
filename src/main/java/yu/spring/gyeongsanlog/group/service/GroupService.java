@@ -31,6 +31,7 @@ public class GroupService {
 
     private static final String INVITE_CODE_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int INVITE_CODE_LENGTH = 8;
+    private static final int MAX_GROUP_MEMBERS = 10;
     private static final SecureRandom RANDOM = new SecureRandom();
 
     private final TravelGroupRepository travelGroupRepository;
@@ -80,6 +81,10 @@ public class GroupService {
             throw new BusinessException(ErrorCode.ALREADY_GROUP_MEMBER);
         }
 
+        if (groupMemberRepository.countByGroupId(group.getId()) >= MAX_GROUP_MEMBERS) {
+            throw new BusinessException(ErrorCode.GROUP_MEMBER_LIMIT_EXCEEDED);
+        }
+
         User user = userRepository.getReferenceById(userId);
         groupMemberRepository.save(GroupMember.builder()
                 .group(group)
@@ -124,6 +129,7 @@ public class GroupService {
         if (!group.getLeader().getId().equals(userId)) {
             groupMemberRepository.deleteByGroupIdAndUserId(groupId, userId);
             return;
+
         }
 
         // 리더는 그룹에 혼자 남았을 때만 탈퇴 가능하며, 이 경우 그룹 자체를 삭제한다.
