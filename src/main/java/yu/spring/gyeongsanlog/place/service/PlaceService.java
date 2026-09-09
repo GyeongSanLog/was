@@ -41,6 +41,13 @@ public class PlaceService {
         return SliceResponse.from(places.map(PlaceListResponse::from));
     }
 
+    // 카테고리/이름 검색 (둘 다 옵션, 둘 다 있으면 AND)
+    @Transactional(readOnly = true)
+    public SliceResponse<PlaceListResponse> searchPlaces(String keyword, ContentType contentType, Pageable pageable) {
+        Slice<Place> places = placeRepository.search(contentType, keyword, pageable);
+        return SliceResponse.from(places.map(PlaceListResponse::from));
+    }
+
     // 관광지 상세 조회
     @Transactional(readOnly = true)
     public PlaceDetailResponse getPlace(Long placeId) {

@@ -30,6 +30,12 @@ public interface PlaceRepository extends JpaRepository<Place, Long> {
     @Query("SELECT p FROM Place p WHERE p.contentType = :contentType AND " + ACTIVE_CONDITION)
     Slice<Place> findByContentType(@Param("contentType") ContentType contentType, Pageable pageable);
 
+    // 카테고리/이름 검색. 둘 다 옵션이며 둘 다 있으면 AND로 결합한다
+    @Query("SELECT p FROM Place p WHERE "
+            + "(:contentType IS NULL OR p.contentType = :contentType) AND "
+            + "(:keyword IS NULL OR p.name LIKE CONCAT('%', :keyword, '%')) AND " + ACTIVE_CONDITION)
+    Slice<Place> search(@Param("contentType") ContentType contentType, @Param("keyword") String keyword, Pageable pageable);
+
     // 진행 중인 축제는 경산시 특성상 몇 개 안 되므로 페이지네이션 없이 전체를 시작일순으로 반환한다
     @Query("SELECT p FROM Place p WHERE p.contentType = 'FESTIVAL' "
             + "AND (p.eventEndDate IS NULL OR p.eventEndDate >= CURRENT_DATE) "

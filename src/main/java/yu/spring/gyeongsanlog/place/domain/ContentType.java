@@ -51,4 +51,12 @@ public enum ContentType {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 콘텐츠 타입입니다: " + code));
     }
+
+    // 프론트가 enum 이름(TOURIST_SPOT) 대신 한글 라벨(관광지)로 넘겨도 받을 수 있게 한다
+    public static ContentType fromLabel(String label) {
+        return Arrays.stream(values())
+                .filter(type -> type.label.equals(label))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("지원하지 않는 카테고리입니다: " + label));
+    }
 }

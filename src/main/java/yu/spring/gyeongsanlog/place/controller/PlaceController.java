@@ -59,6 +59,23 @@ public class PlaceController {
         return ResponseEntity.ok(placeService.getPlaces(type, pageable));
     }
 
+    @Operation(summary = "관광지 검색",
+            description = "이름(keyword)과 유형(type)으로 검색한다. 둘 다 옵션이며 둘 다 주면 AND로 결합한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "조회 성공"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @GetMapping("/search")
+    public ResponseEntity<SliceResponse<PlaceListResponse>> searchPlaces(
+            @Parameter(description = "이름 검색어", example = "반곡지") @RequestParam(required = false) String keyword,
+            @Parameter(description = "관광지 유형", example = "TOURIST_SPOT") @RequestParam(required = false) ContentType type,
+            @ParameterObject @PageableDefault(size = 20, sort = {"name", "id"}, direction = Sort.Direction.ASC)
+            Pageable pageable) {
+
+        return ResponseEntity.ok(placeService.searchPlaces(keyword, type, pageable));
+    }
+
     @Operation(summary = "진행 중인 축제 목록 조회",
             description = "종료되지 않은 축제를 시작일순으로 전체 조회한다. 개수가 적어 페이지네이션이 없다.")
     @ApiResponses(value = {
