@@ -21,7 +21,7 @@ public class DummyDataInitializer implements CommandLineRunner {
     private static final String DUMMY_NAME = "테스트";
 
     // 공모전 제출 지정 형식의 심사용 계정
-    private static final String OPENAPI_EMAIL = "openapi@메일도메인";
+    private static final String OPENAPI_EMAIL = "openapi@test.com";
     private static final String OPENAPI_PASSWORD = "2026openapi!";
     private static final String OPENAPI_NICKNAME = "openapi";
     private static final String OPENAPI_NAME = "심사용계정";
