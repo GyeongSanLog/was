@@ -19,6 +19,9 @@ public class PlaceDetailResponse {
     @Schema(description = "관광지 ID", example = "1")
     private Long id;
 
+    @Schema(description = "로그인한 사용자의 찜 여부", example = "true")
+    private boolean favorited;
+
     @Schema(description = "관광지명", example = "반곡지")
     private String name;
 
@@ -73,9 +76,10 @@ public class PlaceDetailResponse {
     @Schema(description = "경도", example = "128.8066359111")
     private BigDecimal longitude;
 
-    public static PlaceDetailResponse from(Place place, List<PlaceImage> images) {
+    public static PlaceDetailResponse from(Place place, List<PlaceImage> images, boolean favorited) {
         return PlaceDetailResponse.builder()
                 .id(place.getId())
+                .favorited(favorited)
                 .name(place.getName())
                 .address(toAddress(place))
                 .category(place.getContentType().getLabel())
