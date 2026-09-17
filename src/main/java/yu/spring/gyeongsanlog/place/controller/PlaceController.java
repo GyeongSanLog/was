@@ -111,8 +111,8 @@ public class PlaceController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/random")
-    public ResponseEntity<PlaceDetailResponse> getRandomPlace() {
-        return ResponseEntity.ok(placeService.getRandomPlace());
+    public ResponseEntity<PlaceDetailResponse> getRandomPlace(Authentication authentication) {
+        return ResponseEntity.ok(placeService.getRandomPlace(Long.valueOf(authentication.getName())));
     }
 
     @Operation(summary = "찜 목록 조회", description = "최근 찜한 순으로 조회한다(무한스크롤). 인증 필요.")
@@ -160,8 +160,8 @@ public class PlaceController {
                     content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
     })
     @GetMapping("/{placeId}")
-    public ResponseEntity<PlaceDetailResponse> getPlace(@PathVariable Long placeId) {
-        return ResponseEntity.ok(placeService.getPlace(placeId));
+    public ResponseEntity<PlaceDetailResponse> getPlace(Authentication authentication, @PathVariable Long placeId) {
+        return ResponseEntity.ok(placeService.getPlace(Long.valueOf(authentication.getName()), placeId));
     }
 
     @Operation(summary = "관광지 찜 토글", description = "찜한 상태면 취소, 아니면 찜한다.")

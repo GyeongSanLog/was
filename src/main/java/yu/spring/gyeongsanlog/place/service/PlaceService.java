@@ -16,6 +16,7 @@ import yu.spring.gyeongsanlog.place.dto.PlaceListResponse;
 import yu.spring.gyeongsanlog.place.repository.PopularPlaceCacheRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceImageRepository;
 import yu.spring.gyeongsanlog.place.repository.PlaceRepository;
+import yu.spring.gyeongsanlog.place.repository.FavoriteRepository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -28,6 +29,7 @@ public class PlaceService {
     private static final int RECOMMENDATION_SIZE = 3;
 
     private final PlaceRepository placeRepository;
+    private final FavoriteRepository favoriteRepository;
     private final PlaceImageRepository placeImageRepository;
     private final PopularPlaceCacheRepository popularPlaceCacheRepository;
 
@@ -50,11 +52,12 @@ public class PlaceService {
 
     // 관광지 상세 조회
     @Transactional(readOnly = true)
-    public PlaceDetailResponse getPlace(Long placeId) {
+    public PlaceDetailResponse getPlace(Long userId, Long placeId) {
         Place place = placeRepository.findById(placeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
 
-        return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(placeId));
+        return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(placeId),
+                favoriteRepository.existsByUserIdAndPlaceId(userId, placeId));
     }
 
     // 진행 중인 축제 목록 (개수가 적어 페이지네이션 없이 전체 반환)
@@ -73,11 +76,12 @@ public class PlaceService {
 
     // 랜덤 관광지 조회 (음식점 제외)
     @Transactional(readOnly = true)
-    public PlaceDetailResponse getRandomPlace() {
+    public PlaceDetailResponse getRandomPlace(Long userId) {
         Place place = placeRepository.findRandomExcluding(ContentType.RESTAURANT.name())
                 .orElseThrow(() -> new BusinessException(ErrorCode.PLACE_NOT_FOUND));
 
-        return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(place.getId()));
+        return PlaceDetailResponse.from(place, placeImageRepository.findAllByPlaceIdOrderBySortOrderAsc(place.getId()),
+                favoriteRepository.existsByUserIdAndPlaceId(userId, place.getId()));
     }
 
     /*
