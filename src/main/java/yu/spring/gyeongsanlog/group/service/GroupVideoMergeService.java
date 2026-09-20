@@ -112,7 +112,8 @@ public class GroupVideoMergeService {
                 if (response.statusCode() != 200) {
                     throw new IOException("클립 다운로드 실패(HTTP " + response.statusCode() + "): " + clip.getVideoUrl());
                 }
-                downloaded.add(new DownloadedClip(target, clip.getComment(), clip.getUser().getNickname()));
+                Path playable = ensureAudioTrack(target);
+                downloaded.add(new DownloadedClip(playable, clip.getComment(), clip.getUser().getNickname()));
             }
             slots.add(downloaded);
         }
@@ -162,16 +163,46 @@ public class GroupVideoMergeService {
         command.add("+faststart");
         command.add(output.toString());
 
-        Process process = new ProcessBuilder(command).redirectErrorStream(true).start();
-        String ffmpegOutput = new String(process.getInputStream().readAllBytes());
-        boolean finished = process.waitFor(5, TimeUnit.MINUTES);
-        if (!finished) {
-            process.destroyForcibly();
-            throw new IOException("ffmpeg 처리 시간 초과");
+        runProcess(command, output.getParent(), 300);
+    }
+
+    private Path ensureAudioTrack(Path source) throws IOException, InterruptedException {
+        String audioStreams = runProcess(List.of("ffprobe", "-v", "error", "-select_streams", "a:0",
+                "-show_entries", "stream=index", "-of", "csv=p=0", source.toString()), source.getParent(), 30);
+        if (!audioStreams.isBlank()) {
+            return source;
         }
-        if (process.exitValue() != 0) {
-            log.error("ffmpeg 실패 출력:\n{}", ffmpegOutput);
-            throw new IOException("ffmpeg 종료 코드 " + process.exitValue());
+
+        // WebM/MP4 원본 코덱을 유지하면서 영상 길이만큼 무음을 추가한다.
+        Path normalized = source.resolveSibling(source.getFileName() + ".with-audio.mkv");
+        runProcess(List.of("ffmpeg", "-y", "-i", source.toString(),
+                "-f", "lavfi", "-i", "anullsrc=r=44100:cl=stereo",
+                "-map", "0:v:0", "-map", "1:a:0", "-c:v", "copy", "-c:a", "pcm_s16le",
+                "-shortest", normalized.toString()), source.getParent(), 300);
+        return normalized;
+    }
+
+    private String runProcess(List<String> command, Path workDir, long timeoutSeconds)
+            throws IOException, InterruptedException {
+        Path logFile = Files.createTempFile(workDir, "media-process-", ".log");
+        Process process = null;
+        try {
+            process = new ProcessBuilder(command).redirectErrorStream(true)
+                    .redirectOutput(logFile.toFile()).start();
+            if (!process.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
+                throw new IOException(command.get(0) + " 처리 시간 초과");
+            }
+            String output = Files.readString(logFile);
+            if (process.exitValue() != 0) {
+                log.error("{} 실패 출력:\n{}", command.get(0), output);
+                throw new IOException(command.get(0) + " 종료 코드 " + process.exitValue());
+            }
+            return output;
+        } finally {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly().waitFor();
+            }
+            Files.deleteIfExists(logFile);
         }
     }
 
