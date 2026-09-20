@@ -1,0 +1,102 @@
+spring:
+  application:
+    name: GyeongsanLog
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME}?serverTimezone=Asia/Seoul&characterEncoding=UTF-8
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  cloud:
+    aws:
+      credentials:
+        access-key: ${AWS_ACCESS_KEY}
+        secret-key: ${AWS_SECRET_KEY}
+      region:
+        static: ap-northeast-2
+      s3:
+        bucket: ${S3_BUCKET_NAME}
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    # Gmail은 계정 비밀번호가 아니라 2단계 인증 후 발급한 앱 비밀번호를 써야 한다
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+  jackson:
+    deserialization:
+      # TourAPI는 결과가 0건일 때 items를 객체가 아닌 빈 문자열("")로 내려준다
+      accept-empty-string-as-null-object: true
+
+server:
+  error:
+    # /error를 permitAll로 열어둔 상태라 스택트레이스가 새어나가지 않도록 못 박는다.
+    # 개발 환경에서는 devtools가 이 값을 덮어써 무시되지만, devtools가 빠지는 운영에서는 적용된다.
+    # 주요 오류는 GlobalExceptionHandler가 직접 처리해 /error까지 가지 않는다.
+    include-stacktrace: never
+
+tour-api:
+  service-key: ${TOUR_API_KEY}
+  mobile-app: GyeongsanLog
+  mobile-os: ETC
+  # TourAPI 관광정보 갱신 주기가 일 1회라 매일 새벽 4시에 한 번만 동기화한다
+  sync-cron: "0 0 4 * * *"
+  # 법정동 코드 (47: 경상북도, 290: 경산시)
+  ldong-regn-cd: "47"
+  ldong-signgu-cd: "290"
+  # 중심 관광지 정보(LocgoHubTarService1)는 법정동 코드가 아니라 별도의 지역/시군구 코드를 쓴다
+  popular-area-cd: "47"
+  popular-signgu-cd: "47290"
+  # 중심 관광지 데이터는 매월 8일에만 갱신되므로 다음날인 매월 9일 새벽 5시에 한 번만 동기화한다
+  popular-sync-cron: "0 0 5 9 * *"
+
+jwt:
+  access-secret: ${ACCESS_SECRET}
+  access-expiration: ${ACCESS_EXPIRATION:1800000}
+  refresh-secret: ${REFRESH_SECRET}
+  refresh-expiration: ${REFRESH_EXPIRATION:1209600000}
+
+notification:
+  # 매시 정각에 진행 중인 그룹 멤버에게 촬영 알림 발송
+  clip-reminder-cron: "${CLIP_REMINDER_CRON:0 0 * * * *}"
+
+firebase:
+  # 서비스 계정 키 경로. 로컬은 레포의 secrets/(gitignore됨), 운영 컨테이너는 배포 시 주입되는 경로를 쓴다.
+  service-account-path: ${FIREBASE_SERVICE_ACCOUNT_PATH:secrets/firebase-service-account.json}
+
+oauth:
+  kakao:
+    client-id: ${KAKAO_CLIENT_ID:}
+    client-secret: ${KAKAO_CLIENT_SECRET:}
+
+merge:
+  # BM 도현체(OFL 라이선스, fonts/ 디렉터리에 번들). 컨테이너는 Dockerfile이 /app/fonts로 복사. 로컬 Windows는 .env의 FONT_PATH로 오버라이드
+  font-path: ${FONT_PATH:/app/fonts/DoHyeon-Regular.ttf}
+  # 슬롯이 1시간 단위라 굳이 자주 돌 필요 없어서 매시 2분에 한 번, endAt이 지났는데 아직 병합 안 된 그룹을 찾는다
+  scan-cron: "${MERGE_SCAN_CRON:0 2 * * * *}"

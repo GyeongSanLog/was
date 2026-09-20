@@ -1,0 +1,141 @@
+package yu.spring.gyeongsanlog.user.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import yu.spring.gyeongsanlog.common.exception.ErrorResponse;
+import yu.spring.gyeongsanlog.user.dto.EmailSendRequest;
+import yu.spring.gyeongsanlog.user.dto.EmailVerifyRequest;
+import yu.spring.gyeongsanlog.user.dto.KakaoLoginRequest;
+import yu.spring.gyeongsanlog.user.dto.MemberLoginRequest;
+import yu.spring.gyeongsanlog.user.dto.RefreshRequest;
+import yu.spring.gyeongsanlog.user.dto.SignUpRequest;
+import yu.spring.gyeongsanlog.user.dto.TokenResponse;
+import yu.spring.gyeongsanlog.user.service.AuthService;
+import yu.spring.gyeongsanlog.user.service.EmailVerificationService;
+
+@Tag(name = "auth", description = "회원 인증 관련 API")
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/member")
+@Slf4j
+public class AuthController {
+
+    private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
+
+    @Operation(summary = "이메일 인증코드 발송", description = "가입하려는 이메일로 6자리 인증코드를 발송한다. 코드는 5분간 유효하며 60초 내 재발송은 제한된다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "발송 성공"),
+            @ApiResponse(responseCode = "409", description = "이미 가입된 이메일",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "429", description = "재발송 대기 시간 미경과",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/email/send")
+    public ResponseEntity<Void> sendEmailCode(@Valid @RequestBody EmailSendRequest request) {
+        emailVerificationService.sendCode(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "이메일 인증코드 검증", description = "발송된 인증코드를 검증한다. 통과하면 30분 안에 해당 이메일로 회원가입할 수 있다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "인증 성공"),
+            @ApiResponse(responseCode = "400", description = "인증코드 불일치 또는 만료",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/email/verify")
+    public ResponseEntity<Void> verifyEmailCode(@Valid @RequestBody EmailVerifyRequest request) {
+        emailVerificationService.verifyCode(request);
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "회원가입", description = "사용자의 정보를 받아 회원가입 진행 후 토큰을 반환한다. 이메일 인증을 먼저 통과해야 한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "회원가입 성공 및 토큰 발급",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "400", description = "잘못된 요청(입력값 유효성 검증 실패)",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "409", description = "이미 존재하는 아이디로 가입 시도",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/register")
+    public ResponseEntity<TokenResponse> signUp(@Valid @RequestBody SignUpRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(request));
+    }
+
+    @Operation(summary = "로그인", description = "이메일/비밀번호로 로그인 후 토큰을 반환한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인 성공 및 토큰 발급",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "401", description = "비밀번호 불일치",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "404", description = "존재하지 않는 사용자",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody MemberLoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
+    }
+
+    @Operation(summary = "카카오 로그인",
+            description = "프론트가 받은 카카오 인가 코드로 로그인한다. 가입 이력이 없으면 자동으로 가입 후 토큰을 발급한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "로그인/가입 성공 및 토큰 발급",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "400", description = "인가 코드 또는 redirect_uri 오류",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class))),
+            @ApiResponse(responseCode = "401", description = "카카오 사용자 정보 조회 실패",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/kakao/login")
+    public ResponseEntity<TokenResponse> kakaoLogin(@Valid @RequestBody KakaoLoginRequest request) {
+        return ResponseEntity.ok(authService.kakaoLogin(request));
+    }
+
+    @Operation(summary = "토큰 재발급", description = "refresh token으로 access/refresh 토큰을 재발급한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "재발급 성공",
+                    content = @Content(schema = @Schema(implementation = TokenResponse.class))),
+            @ApiResponse(responseCode = "401", description = "유효하지 않거나 만료된 refresh token",
+                    content = @Content(schema = @Schema(implementation = ErrorResponse.class)))
+    })
+    @PostMapping("/reissue")
+    public ResponseEntity<TokenResponse> reissue(@Valid @RequestBody RefreshRequest request) {
+        return ResponseEntity.ok(authService.reissue(request));
+    }
+
+    @Operation(summary = "닉네임 중복 확인", description = "닉네임 사용 가능 여부를 반환한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "확인 성공",
+                    content = @Content(schema = @Schema(implementation = Boolean.class)))
+    })
+    @GetMapping("/nickname/check")
+    public ResponseEntity<Boolean> checkNickname(@RequestParam String nickname) {
+        return ResponseEntity.ok(authService.isNicknameAvailable(nickname));
+    }
+
+    @Operation(summary = "로그아웃", description = "refresh token을 만료시켜 해당 세션을 로그아웃한다.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "로그아웃 성공")
+    })
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(@Valid @RequestBody RefreshRequest request) {
+        authService.logout(request);
+        return ResponseEntity.noContent().build();
+    }
+}
