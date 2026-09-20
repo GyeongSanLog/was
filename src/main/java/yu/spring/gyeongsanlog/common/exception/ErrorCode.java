@@ -10,6 +10,8 @@ public enum ErrorCode {
     INVALID_PASSWORD(HttpStatus.UNAUTHORIZED, "INVALID_PASSWORD", "비밀번호가 일치하지 않습니다."),
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "USER_NOT_FOUND", "존재하지 않는 사용자입니다."),
     GROUP_NOT_FOUND(HttpStatus.NOT_FOUND, "GROUP_NOT_FOUND", "존재하지 않는 그룹입니다."),
+    GROUP_MERGE_RETRY_NOT_ALLOWED(HttpStatus.CONFLICT, "GROUP_MERGE_RETRY_NOT_ALLOWED", "여행이 종료되고 영상 병합에 실패한 그룹만 재시도할 수 있습니다."),
+    GROUP_MERGE_BUSY(HttpStatus.SERVICE_UNAVAILABLE, "GROUP_MERGE_BUSY", "영상 병합 요청이 많습니다. 잠시 후 다시 시도해주세요."),
     ALREADY_GROUP_MEMBER(HttpStatus.CONFLICT, "ALREADY_GROUP_MEMBER", "이미 참여중인 그룹입니다."),
     GROUP_MEMBER_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "GROUP_MEMBER_LIMIT_EXCEEDED", "그룹 최대 인원(10명)을 초과했습니다."),
     LEADER_CANNOT_LEAVE(HttpStatus.CONFLICT, "LEADER_CANNOT_LEAVE", "다른 멤버가 있는 동안에는 리더가 탈퇴할 수 없습니다."),
