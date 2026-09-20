@@ -51,7 +51,8 @@ public class GroupVideoMergeService {
     @Value("${merge.font-path}")
     private String fontPath;
 
-    private record DownloadedClip(Path videoPath, String comment, String nickname) {}
+    // 코멘트 자막은 프론트에서 이미 클립에 합성해서 올려주므로 여기서는 닉네임만 들고 있는다.
+    private record DownloadedClip(Path videoPath, String nickname) {}
 
     public void mergeGroupVideo(Long groupId) {
         if (!statusUpdater.markProcessing(groupId)) {
@@ -118,7 +119,7 @@ public class GroupVideoMergeService {
                     throw new IOException("클립 다운로드 실패(HTTP " + response.statusCode() + "): " + clip.getVideoUrl());
                 }
                 Path playable = ensureAudioTrack(target);
-                downloaded.add(new DownloadedClip(playable, clip.getComment(), clip.getUser().getNickname()));
+                downloaded.add(new DownloadedClip(playable, clip.getUser().getNickname()));
             }
             slots.add(downloaded);
         }
@@ -243,7 +244,8 @@ public class GroupVideoMergeService {
         int idx = inputIndex[0]++;
 
         String label = "slot" + slot + "v";
-        filter.append(buildCellFilter(idx, TARGET_WIDTH, TARGET_HEIGHT, clip.comment(), clip.nickname()))
+        // 코멘트 자막은 프론트에서 이미 클립에 합성해서 올려주므로 서버에서는 닉네임만 덧입힌다.
+        filter.append(buildCellFilter(idx, TARGET_WIDTH, TARGET_HEIGHT, null, clip.nickname()))
                 .append('[').append(label).append("];");
         slotVideoLabels.add('[' + label + ']');
         slotAudioLabels.add("[" + idx + ":a]");
@@ -271,7 +273,8 @@ public class GroupVideoMergeService {
                 command.add(clip.videoPath().toString());
                 int idx = inputIndex[0]++;
                 realAudioIdx.add(idx);
-                filter.append(buildCellFilter(idx, cellW, cellH, clip.comment(), clip.nickname()))
+                // 코멘트 자막은 프론트에서 이미 클립에 합성해서 올려주므로 서버에서는 닉네임만 덧입힌다.
+                filter.append(buildCellFilter(idx, cellW, cellH, null, clip.nickname()))
                         .append('[').append(cellLabel).append("];");
             } else {
                 command.add("-f");
