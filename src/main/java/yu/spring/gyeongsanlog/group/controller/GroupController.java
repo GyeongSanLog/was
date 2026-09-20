@@ -1,6 +1,9 @@
 package yu.spring.gyeongsanlog.group.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import yu.spring.gyeongsanlog.group.service.GroupVideoMergeRetryService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +32,23 @@ import java.util.List;
 public class GroupController {
 
     private final GroupService groupService;
+    private final GroupVideoMergeRetryService groupVideoMergeRetryService;
+
+    @Operation(summary = "실패한 그룹 영상 병합 재시도",
+            description = "종료된 여행의 FAILED 상태에서 그룹 멤버만 요청할 수 있다. 접수 후 백그라운드에서 병합하며 그룹 상세의 mergeStatus로 결과를 확인한다.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "202", description = "재병합 요청 접수"),
+            @ApiResponse(responseCode = "401", description = "인증되지 않은 요청"),
+            @ApiResponse(responseCode = "404", description = "그룹이 없거나 그룹 멤버가 아님"),
+            @ApiResponse(responseCode = "409", description = "여행이 종료되지 않았거나 FAILED 상태가 아님"),
+            @ApiResponse(responseCode = "503", description = "병합 작업 대기열이 가득 참")
+    })
+    @PostMapping("/{groupId}/merge/retry")
+    public ResponseEntity<Void> retryMerge(Authentication authentication, @PathVariable Long groupId) {
+        Long userId = Long.valueOf(authentication.getName());
+        groupVideoMergeRetryService.retry(userId, groupId);
+        return ResponseEntity.accepted().build();
+    }
 
     @Operation(summary = "그룹 생성", description = "새 여행 그룹을 생성하고 생성자를 리더 겸 멤버로 등록한다. 그룹 사진은 선택사항이다.")
     @PostMapping(consumes = "multipart/form-data")

@@ -54,8 +54,13 @@ public class GroupVideoMergeService {
     private record DownloadedClip(Path videoPath, String comment, String nickname) {}
 
     public void mergeGroupVideo(Long groupId) {
-        statusUpdater.markProcessing(groupId);
+        if (!statusUpdater.markProcessing(groupId)) {
+            return;
+        }
+        mergeClaimedGroupVideo(groupId);
+    }
 
+    void mergeClaimedGroupVideo(Long groupId) {
         Path workDir = null;
         try {
             TravelGroup group = travelGroupRepository.findById(groupId)
