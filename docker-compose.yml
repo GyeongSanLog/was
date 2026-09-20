@@ -3,6 +3,7 @@ services:
     image: mysql:8.0
     restart: always
     environment:
+      TZ: Asia/Seoul
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: ${DB_NAME}
     ports:
@@ -32,6 +33,7 @@ services:
       redis:
         condition: service_started
     environment:
+      TZ: Asia/Seoul
       DB_HOST: db
       DB_NAME: ${DB_NAME}
       DB_USER: root
